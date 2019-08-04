@@ -1,0 +1,119 @@
+*, ::after, ::before {
+    margin: 0;
+    padding: 0;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+}
+body {
+    position: relative;
+}
+body, legend {
+    font-family: 'Helvetica Neue',Helvetica,Arial,san-serif;
+    font-size: 80%;
+    color: #2d363b !important;
+}
+article, aside, figure, figure img, figcaption, hgroup, footer, header, nav, section, video, object, canvas {
+    display: block;
+}
+.frm .lst > .product-price > span, .team-name > .shrt, .blk.crd.alert > .hdr > h2, .blk.crd.alert > .blk.bdy > .tools, .hdr.badges h1, .nav.primary.mini > .lst.menu, .blk.rgtool-roadblock p, .blk.rgtool-ad h4, .frm.screennames .btn, .lst.research-tools > li h3, .lst.filters.date a, .lst.admintools > li > a, ul.stars > li, .blk.push-notice > .icn-delete, .simplemodal-container .giphies .giphy-gate > li > a, .blk.ntc .icn-delete, .stripbanner h4, .slick-prev, .slick-next, .blankslate, .team-name > span, .blk.payment-info .price, .cmp.grinddown > .bdy > .tbl .composite > td, .hdr.content.table-page > .meta > .social > li > a, .blk.article > .meta > .social > li > a, .bdy.contact > .blk {
+    font-size: 1.4em;
+}
+.lst {
+    list-style: none;
+}
+a, button {
+    text-decoration: none;
+    color: #0094d9;
+    -o-transition: all .3s linear;
+    -moz-transition: all .3s linear;
+    -khtml-transition: all .3s linear;
+    -webkit-transition: all .3s linear;
+    -ms-transition: all .3s linear;
+    transition: all .3s linear;
+}
+a:hover, button:hover {
+    color: #0071a6;
+}
+p {
+    margin-top: 0;
+    margin-bottom: 1rem;
+}
+.table.forecast, .table.forecast .time td, .table.forecast .wind td > span, .cmp.featured .lst.tabs > li > a, .frm .meta, .lst.filters, .lst.filters.teams > .game > time, .blk.dropdown > .label, .lst.push-notice .lst, .blk.shelf .slick-slide p, .inc-only, .blk.incentives-cta .lst, .pag.ftr .disclosures, .team-name, .blk.landing .blk.form .frm > p, .blk.information > p, .blk.information .expert .lst, .cmp.comments > .avatar > p, .tbl thead th .icn-arw-up, .tbl thead th .icn-arw-down {
+    font-size: .9em;
+}
+.cflex > :last-of-type {
+    padding-right: 0;
+}
+.cflex > :first-of-type {
+    padding-left: 0;
+}
+.c10, .c20, .c25, .c30, .c35, .c40, .c45, .c50, .c55, .c60, .c70, .c75, .c80, .c90, .c100 {
+    width: 100%;
+}
+h2 {
+    font-size: 2em;
+}
+h1, h2, h3, h4, h5, h6, legend {
+    line-height: 1.2em;
+    font-weight: 300;
+}
+.faction-group-no-role {
+    color: #fff;
+}
+.table:not(.table-dark) .faction-group-no-role {
+    color:rgb(45, 54, 59);
+}
+.faction-group-active {
+    color: #008000;
+}
+.faction-group-mafia {
+    color: #FF0018;
+}
+.faction-group-neutral {
+    color: #7F2394;
+}
+.faction-no-role {
+    color: #FFFFFF;
+}
+.faction-active {
+    color: #008000;
+}
+.faction-mafia {
+    color: #FF0018;
+}
+.faction-mafia-second {
+    color: #FF6A00;
+}
+.faction-neutral {
+    color: #7F2394;
+}
+.faction-mafia-third {
+    color: #FF273D;
+}
+.faction-neutral-second {
+    color: rgb(132, 119, 134);
+}
+.faction-neutral-third {
+    color: rgb(2, 235, 99);
+}
+.pag .a-link {
+    cursor: pointer;
+    color: #0094d9;
+    transition: 0.3s;
+    text-decoration: none;
+}
+.pag .a-link:hover {
+    color: #f98c13;
+}
+.failed-game {
+    color: #0095FF
+}
+.mtr__pagination .mtr__pagination-items .page-item .page-link {
+    color: #0094d9;
+}
+.mtr__pagination .mtr__pagination-items .page-item.active .page-link {
+    background-color: #0094d9;
+    border-color: #0094d9;
+    color: #fff;
+}
