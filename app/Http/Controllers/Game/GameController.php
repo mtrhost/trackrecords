@@ -7,6 +7,11 @@ use App\Game;
 
 class GameController extends Controller
 {
+    public function index()
+    {
+        return view('games/list');
+    }
+
     public function list()
     {
         $games = Game::with([

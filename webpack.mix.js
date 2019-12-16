@@ -1,4 +1,4 @@
-let mix = require('laravel-mix');
+/*let mix = require('laravel-mix');
 const webpack = require('webpack')
 const CopyWebpackPlugin = require('copy-webpack-plugin')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
@@ -6,16 +6,6 @@ const ExtractTextPlugin = require('extract-text-webpack-plugin')
 const OptimizeCSSPlugin = require('optimize-css-assets-webpack-plugin')
 const UglifyJsPlugin = require('uglifyjs-webpack-plugin')
 
-/*
- |--------------------------------------------------------------------------
- | Mix Asset Management
- |--------------------------------------------------------------------------
- |
- | Mix provides a clean, fluent API for defining some Webpack build steps
- | for your Laravel application. By default, we are compiling the Sass
- | file for the application as well as bundling up all the JS files.
- |
- */
 mix.js('resources/assets/frontend/src/main.js', 'static/js')
     //.styles(['resources/assets/frontend/static/css/main.css', 'resources/assets/frontend/static/css/normalize.css'], 'public/static/css/main.css')
    //.sass('resources/assets/sass/app.scss', 'assets/css')
@@ -68,14 +58,8 @@ mix.js('resources/assets/frontend/src/main.js', 'static/js')
                 chunksSortMode: 'dependency'
             }),
             // copy custom static assets
-            /*new CopyWebpackPlugin([
-                {
-                    from: path.resolve(__dirname, 'resources/assets/frontend/static'),
-                    to: 'public/static',
-                    ignore: ['.css']
-                }
-            ])*/
         ]
-    });
-/*mix.js('resources/assets/js/app.js', 'public/js')
-   .sass('resources/assets/sass/app.scss', 'public/css');*/
+    });*/
+let mix = require('laravel-mix');
+mix.js('resources/assets/js/app.js', 'public/static/js')
+   .sass('resources/assets/sass/app.scss', 'public/static/css');

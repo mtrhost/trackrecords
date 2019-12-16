@@ -11,6 +11,99 @@ use App\PlayerStatistics;
 
 class PlayerController extends Controller
 {
+    public function index()
+    {
+        $players = Player::select('id', 'name', 'profile', 'last_game', \DB::raw('LOWER(LEFT(name, 1)) AS sort_letter'))
+            ->with([
+                'statistics' => function($q){
+                    $q->select('id', 'player_id', 'games_count_no_role', 'wins_no_role', 'games_count_active', 'wins_active',
+                    'games_count_mafia', 'wins_mafia', 'games_count_neutral', 'wins_neutral');
+                }
+            ])
+            ->groupBy('last_game', 'name', 'id', 'profile')
+            ->orderByRaw("last_game DESC, name ASC")
+            ->paginate(50);
+            
+        return view('players/list', compact('players'));
+    }
+
+    public function details($id)
+    {
+        $player = Player::with([
+            'statistics',
+            'gameRoles',
+            'games' => function($q) use ($id) {
+                $q->with([
+                    'master' => function($q) {
+                        $q->select('id', 'name');
+                    },
+                    'winners' => function($q) {
+                        $q->select('id', 'game_id', 'faction_id')
+                            ->with([
+                                'faction' => function($q) {
+                                    $q->select('id', 'group_id')
+                                        ->with([
+                                            'group' => function($q) {
+                                                $q->select('id', 'title', 'alias', 'title_for_games');
+                                            }
+                                        ]);
+                                }
+                            ]);
+                    },
+                    'roles' => function($q) use ($id) {
+                        $q->where('player_id', $id)
+                            ->with([
+                                'role', 'status', 'timeStatus',
+                                'faction' => function($q) {
+                                    $q->select('id', 'group_id', 'alias', 'name')
+                                        ->with([
+                                            'group' => function($q) {
+                                                $q->select('id', 'title', 'alias', 'title_for_games');
+                                            }
+                                        ]);
+                                }
+                            ]);
+                    }
+                ]);
+            },
+            'achievements'
+        ])
+        ->withCount(['gamesMastered'])
+        ->findOrFail($id);
+        $player->updatePlayerAvatar();
+        $player->parseProfile();
+        $player->last_game = Carbon::parse($player->last_game)->toDateString();
+        $player->getWinrate();
+        $player->factions = Faction::select('factions.id', 'group_id', 'color', 'faction_groups.alias')
+            ->join('faction_groups', 'faction_groups.id', '=', 'factions.group_id')
+            ->with(['group' => function($q){ $q->select('id', 'alias'); }])->get()->groupBy('alias');
+        $player->roleRate = $player->getRoleRate();
+        $player->lightningsCount = $player->getLightningsCount();
+        $player->cityNegativeActionsRate = $player->getCityNegativeActionsRate();
+        $player->mafiaAverageDaysSurvived = $player->getMafiaAverageDaysSurvived(2);
+        $player->games->each(function(&$value) {
+            $value->info = ['name' => $value->name, 'id' => $value->id];
+            $value->getWinnersString();
+            $value->getRoleString();
+            $value->getStatusString();
+        });
+        $player->games = $player->games->sortByDesc('number')->values();
+        
+        return view('players/details', compact('player'));
+    }
+
+    public function statistics()
+    {
+        return view('players/statistics');
+    }
+
+    public function getLastActivity(Request $request)
+    {
+        $validated = $this->validate($request, ['id' => 'required|integer|exists:players,id']);
+        $player = Player::findOrFail($validated['id']);
+        return response()->json($player->parseProfile());
+    }
+
     public function playersList()
     {
         $playersGroup = Player::select('id', 'name', 'profile', 'last_game', \DB::raw('LOWER(LEFT(name, 1)) AS sort_letter'))
@@ -108,7 +201,7 @@ class PlayerController extends Controller
         return response()->json($player);
     }
 
-    public function statistics()
+    /*public function statistics()
     {
         $statistics = Player::select('id', 'name')
         ->whereHas('statistics')
@@ -127,5 +220,5 @@ class PlayerController extends Controller
             $value->mafiaAverageDaysSurvived = $value->getMafiaAverageDaysSurvived(2);
         });
         return response()->json($statistics);
-    }
+    }*/
 }

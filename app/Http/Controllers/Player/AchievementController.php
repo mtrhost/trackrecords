@@ -7,7 +7,7 @@ use App\Achievement;
 
 class AchievementController extends Controller
 {
-    public function list()
+    public function index()
     {
         $achievements = Achievement::
             with([
@@ -18,6 +18,6 @@ class AchievementController extends Controller
             ->orderBy('sort', 'ASC')
             ->get();
 
-        return response()->json($achievements);
+        return view('achievements/list', compact('achievements'));
     }
 }

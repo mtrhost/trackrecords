@@ -14,14 +14,14 @@
     "bootstrap-sass": "^3.3.7",
     "copy-webpack-plugin": "^4.0.1",
     "cross-env": "^5.2.0",
+    "html-webpack-plugin": "^2.30.1",
     "isotope-cells-by-row": "^1.1.4",
     "isotope-layout": "^3.0.6",
     "jquery": "^3.2",
     "laravel-mix": "^1.0",
-    "html-webpack-plugin": "^2.30.1",
-    "optimize-css-assets-webpack-plugin": "^3.2.0",
     "lodash": "^4.17.4",
-    "vue": "^2.5.7",
+    "optimize-css-assets-webpack-plugin": "^3.2.0",
+    "vue": "^2.6.10",
     "vue-images-loaded": "^1.1.2",
     "vue-izitoast": "^1.0.1",
     "vue-router": "^3.0.1",
@@ -35,6 +35,9 @@
     "test": "tests"
   },
   "dependencies": {
+    "bootstrap": "^4.3.1",
+    "bootstrap-vue": "^2.0.1",
+    "laravel-vue-datatable": "^0.3.7",
     "vue-bootstrap-typeahead": "^0.2.6"
   },
   "keywords": [],

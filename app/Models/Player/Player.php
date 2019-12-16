@@ -27,6 +27,12 @@ class Player extends Model
 
     const GAMES_COUNT_FOR_STATISTICS_APPEARANCE = 20;
     const MONTHS_TO_COUNT_AS_INACTIVE = 3;
+    const WINRATE_COLORS = [
+        'bad' => '#b00b13',
+        'average' => '#4e90ec',
+        'good' => '#D7B740',
+        'inactive' => '#D3D3D3'
+    ];
 
     protected $appends = ['profileImage'];
 
@@ -66,7 +72,7 @@ class Player extends Model
     public function parseProfile()
     {
         $profileData = PDParser::parseProfileData($this->profile);
-        $this->last_active = $profileData['lastActive'];
+        return $this->last_active = $profileData['lastActive'];
     }
 
     public function updatePlayerAvatar()
@@ -105,7 +111,8 @@ class Player extends Model
 
     public function isActive()
     {
-        if(is_null($this->last_game) || Carbon::now()->subMonths(self::MONTHS_TO_COUNT_AS_INACTIVE)->gt($this->last_game))
+        $lastGame = Game::select('id', 'date')->latest()->first();
+        if(is_null($this->last_game) || Carbon::parse($lastGame->date)->subMonths(self::MONTHS_TO_COUNT_AS_INACTIVE)->gt($this->last_game))
             return false;
 
         return true;
@@ -144,10 +151,27 @@ class Player extends Model
 
 
         $this->getFactionsWinrateStatistics(FactionGroup::get()->toArray(), $accuracy);
-
-        return $this->winrate = round(
+        $this->winrate = round(
             ($this->statistics->wins_count / $this->statistics->games_count) * 100, $accuracy
         );
+        $this->getWinrateColor();
+
+        return $this->winrate;
+    }
+
+    public function getWinrateColor()
+    {
+        if(!$this->is_active) {
+            $this->winrate_color = self::WINRATE_COLORS['inactive'];
+        } else {
+            if($this->winrate < 35) {
+                $this->winrate_color = self::WINRATE_COLORS['bad'];
+            } else if ($this->winrate > 60) {
+                $this->winrate_color = self::WINRATE_COLORS['good'];
+            } else {
+                $this->winrate_color = self::WINRATE_COLORS['average'];
+            }
+        }
     }
 
     public function getFactionsWinrateStatistics($factionGroups, $accuracy = 0)

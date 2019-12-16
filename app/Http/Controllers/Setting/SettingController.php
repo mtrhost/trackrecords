@@ -7,6 +7,34 @@ use App\Setting;
 
 class SettingController extends Controller
 {
+    public function index(Request $request)
+    {
+        $validated = $this->validate($request, [
+            'name' => 'sometimes|string|nullable|max:255', 
+            'players_count' => 'sometimes|integer|nullable|min:1',
+            'author' => 'sometimes|string|nullable|max:255',
+        ]);
+        $settings = Setting::select('id', 'name', 'players_count', 'author_id')
+            ->when($request->filled('name'), function ($q) use ($validated) {
+                return $q->where('name', 'LIKE', '%' . $validated['name'] . '%');
+            })
+            ->when($request->filled('players_count'), function ($q) use ($validated) {
+                return $q->where('players_count', $validated['players_count']);
+            })
+            ->when($request->filled('author'), function ($q) use ($validated) {
+                return $q->whereHas('author', function($q) use ($validated) {
+                    $q->where('name', 'LIKE', '%' . $validated['author'] . '%');
+                });
+            })
+            ->with([
+                'author' => function($q){
+                    $q->select('id', 'name');
+                }
+            ])->paginate(20);
+            
+        return view('settings/list', compact('settings'))->with(array_filter($request->all()));
+    }
+    
     public function list()
     {
         $settings = Setting::with([

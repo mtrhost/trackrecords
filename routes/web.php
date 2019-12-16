@@ -52,27 +52,32 @@ Route::group(['prefix' => 'admin'], function () {
     Route::post('game/save', 'AdminController@saveGame')->name('admin.game.save');
 });
 
-Route::get('/{vue_capture?}', function () {
+/*Route::get('/{vue_capture?}', function () {
     return view('templates.main');
-})->where('vue_capture', '[\/\w\.-]*');
-
+})->where('vue_capture', '[\/\w\.-]*');*/
+$this->get('/', 'IndexController@index')->name('index');
 Route::group(['prefix' => 'players'], function () {
+    Route::get('/', 'PlayerController@index')->name('player.index');
+    Route::get('{id}', 'PlayerController@details')->name('player.details');
+    Route::get('statistics', 'PlayerController@statistics')->name('player.statistics');
+    Route::post('get-last-activity', 'PlayerController@getLastActivity')->name('player.getLastActivity');
     Route::post('list', 'PlayerController@playersList')->name('player.list');
     Route::post('show', 'PlayerController@show')->name('player.show');
     Route::post('parse', 'PlayerController@parsePlayerProfile')->name('player.parsePlayerProfile');
-    Route::post('statistics', 'PlayerController@statistics')->name('player.statistics');
 });
 
 Route::group(['prefix' => 'games'], function () {
+    Route::get('/', 'GameController@index')->name('game.index');
     Route::post('list', 'GameController@list')->name('game.list');
     Route::post('show', 'GameController@show')->name('game.show');
 });
 
 Route::group(['prefix' => 'settings'], function () {
+    Route::get('/', 'SettingController@index')->name('setting.index');
     Route::post('list', 'SettingController@list')->name('setting.list');
     Route::post('show', 'SettingController@show')->name('setting.show');
 });
 
 Route::group(['prefix' => 'achievements'], function () {
-    Route::post('list', 'AchievementController@list')->name('achievements.list');
+    Route::get('/', 'AchievementController@index')->name('achievements.index');
 });
