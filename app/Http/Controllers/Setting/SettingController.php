@@ -34,6 +34,58 @@ class SettingController extends Controller
             
         return view('settings/list', compact('settings'))->with(array_filter($request->all()));
     }
+
+    public function details($id)
+    {
+        $setting = Setting::with([
+            'author' => function($q){
+                $q->select('id', 'name');
+            },
+            'settingRoles' => function($q) {
+                $q->with([
+                    'role',
+                    'faction' => function($q) {
+                        $q->select('id', 'group_id', 'alias', 'name')
+                            ->with([
+                                'group' => function($q) {
+                                    $q->select('id', 'title', 'alias', 'title_for_games');
+                                }
+                            ]);
+                    }
+                ]);
+            },
+            'games' => function($q) {
+                $q->select('id', 'setting_id', 'master_id', 'name')
+                    ->with([
+                        'winners' => function($q) {
+                            $q->select('id', 'game_id', 'faction_id')
+                                ->with([
+                                    'faction' => function($q) {
+                                        $q->select('id', 'group_id', 'alias', 'name')
+                                            ->with([
+                                                'group' => function($q) {
+                                                    $q->select('id', 'title', 'alias', 'title_for_games');
+                                                }
+                                            ]);
+                                    }
+                                ]);
+                        },
+                        'master' => function($q) {
+                            $q->select('id', 'name');
+                        },
+                    ]);
+            }
+        ])->findOrFail($id);
+
+        $setting->games->each(function(&$value) {
+            $value->info = ['name' => $value->name, 'id' => $value->id];
+            $value->getWinnersString();
+        });
+        $setting->rolesSorted = array_values($setting->settingRoles->groupBy('faction.id')->toArray());
+        unset($setting->settingRoles);
+        
+        return view('settings/details', compact('setting'));
+    }
     
     public function list()
     {

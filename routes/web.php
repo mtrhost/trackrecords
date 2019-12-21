@@ -58,8 +58,8 @@ Route::group(['prefix' => 'admin'], function () {
 $this->get('/', 'IndexController@index')->name('index');
 Route::group(['prefix' => 'players'], function () {
     Route::get('/', 'PlayerController@index')->name('player.index');
-    Route::get('{id}', 'PlayerController@details')->name('player.details');
     Route::get('statistics', 'PlayerController@statistics')->name('player.statistics');
+    Route::get('{id}', 'PlayerController@details')->name('player.details');
     Route::post('get-last-activity', 'PlayerController@getLastActivity')->name('player.getLastActivity');
     Route::post('list', 'PlayerController@playersList')->name('player.list');
     Route::post('show', 'PlayerController@show')->name('player.show');
@@ -68,12 +68,14 @@ Route::group(['prefix' => 'players'], function () {
 
 Route::group(['prefix' => 'games'], function () {
     Route::get('/', 'GameController@index')->name('game.index');
+    Route::get('{id}', 'GameController@details')->name('game.details');
     Route::post('list', 'GameController@list')->name('game.list');
     Route::post('show', 'GameController@show')->name('game.show');
 });
 
 Route::group(['prefix' => 'settings'], function () {
     Route::get('/', 'SettingController@index')->name('setting.index');
+    Route::get('{id}', 'SettingController@details')->name('setting.details');
     Route::post('list', 'SettingController@list')->name('setting.list');
     Route::post('show', 'SettingController@show')->name('setting.show');
 });

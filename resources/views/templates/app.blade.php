@@ -22,8 +22,8 @@
     <link href="{{ asset('css/extended.css') }}" rel="stylesheet">
     <link href="{{ asset('css/all.css') }}" rel="stylesheet">
     <link href="{{ asset('css/theme.css') }}" rel="stylesheet">
-    <link href="{{ asset('css/style.css') }}" rel="stylesheet">
     <link href="{{ asset('css/vdatatables.css') }}" rel="stylesheet">
+    <link href="{{ asset('css/style.css') }}" rel="stylesheet">
     @yield('header-styles')
 </head>
 <body>

@@ -94,7 +94,25 @@ class PlayerController extends Controller
 
     public function statistics()
     {
-        return view('players/statistics');
+        $statistics = Player::select('id', 'name')
+            ->whereHas('statistics')
+            ->with([
+                'statistics'
+            ])
+            ->get()->each(function(&$value){
+                $value->gamesCount = $value->getGamesCount(true);
+                $value->gamesCountWoMastered = $value->getGamesCount();
+                $value->lightningsCount = $value->getLightningsCount();
+                $value->getWinrate(2);
+                $value->winrateCivilian = $value->getCivilianWinrate(2);
+                $value->statistics->civilian_games_count;
+                $value->roleRate = $value->getRoleRate(2);
+                $value->cityNegativeActionsRate = $value->getCityNegativeActionsRate(2);
+                $value->mafiaAverageDaysSurvived = $value->getMafiaAverageDaysSurvived(2);
+                $value->routeLink = route('player.details', $value->id);
+            });
+            
+        return view('players/statistics', compact('statistics'));
     }
 
     public function getLastActivity(Request $request)

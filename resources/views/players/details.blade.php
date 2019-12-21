@@ -79,7 +79,9 @@
                 tab: function (newValue, oldValue) {
                     if (newValue == 'games') {
                         Vue.nextTick(function () {
-                            var table = new DataTable("#GamesTable");
+                            var table = new DataTable("#GamesTable", {
+                                perPageSelect: false,
+                            });
                         })
                     }
                 }
@@ -286,6 +288,33 @@
                 </div>
             </template>
 
+            {{-- Секция ачивок --}}
+            <template v-if="isActive('achievements')">
+                <div class="card card-danger custom-card">
+                    <div class="card-block p-y-0">
+                        <table class="table achievements__header-cells">
+                            <tbody>
+                                @foreach($player->achievements as $achievement)
+                                    <tr>
+                                        <td class="align-middle">
+                                            <img class="achievements__main-image" src="{{ $achievement->image_original }}" alt="{{ $achievement->name }}">
+                                        </td>
+                                        <td class="align-middle">
+                                            {{ $achievement->name }}
+                                        </td>
+                                        <td class="align-middle">
+                                            {{ $achievement->condition }}
+                                        </td>
+                                        <td class="align-middle">
+                                            {{ $achievement->description }}
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </template>
         </div>
     </section>
 

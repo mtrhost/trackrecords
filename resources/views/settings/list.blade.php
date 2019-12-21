@@ -49,7 +49,7 @@
                             @foreach($settings as $setting)
                                 <tr>
                                     <th scope="row">{{ $setting->id }}</th>
-                                    <td>{{ $setting->name }}</td>
+                                    <td><a href="{{ route('setting.details', $setting->id) }}">{{ $setting->name }}</a></td>
                                     <td>{{ $setting->players_count }}</td>
                                     <td>{{ $setting->author->name }}</td>
                                 </tr>

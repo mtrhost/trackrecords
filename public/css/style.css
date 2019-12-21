@@ -837,3 +837,24 @@ body {
  .faction-neutral-third {
      color: rgb(2, 235, 99);
  }
+ .dataTable-pagination li:not(.active) a {
+    color: #ccc;
+ }
+ .sidebar-menu {
+    background: #242f39;
+    padding: 10px 30px 10px 20px;
+ }
+ .sidebar-menu li {
+    color: #ccc;
+    padding: 8px;
+ }
+ .sidebar-menu li:not(:first-child) {
+    border-color: #E6E6E6;
+    border-top: 1px solid #dee2e6;
+ }
+ .sidebar-menu li:hover,
+ .sidebar-menu li.active {
+    color:#f37e17
+ }
+}
+
