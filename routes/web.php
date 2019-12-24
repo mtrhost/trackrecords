@@ -33,8 +33,8 @@ Route::get('storage/players/{player}/{image}', function ($player, $image)
 });
 //Auth::routes();
 //Route::get('login', [ 'as' => 'login', 'uses' => 'LoginController@authorize'])->name('auth.login');
-$this->get('login', 'Auth\LoginController@index')->name('login');
-$this->post('login', 'Auth\LoginController@process');
+Route::get('login', 'Auth\LoginController@index')->name('login');
+Route::post('login', 'Auth\LoginController@process');
 Route::get('/logout', function(){
     \Auth::logout();
     return Redirect::to('/');
@@ -55,7 +55,7 @@ Route::group(['prefix' => 'admin'], function () {
 /*Route::get('/{vue_capture?}', function () {
     return view('templates.main');
 })->where('vue_capture', '[\/\w\.-]*');*/
-$this->get('/', 'IndexController@index')->name('index');
+Route::get('/', 'IndexController@index')->name('index');
 Route::group(['prefix' => 'players'], function () {
     Route::get('/', 'PlayerController@index')->name('player.index');
     Route::get('statistics', 'PlayerController@statistics')->name('player.statistics');
