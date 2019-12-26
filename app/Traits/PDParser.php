@@ -11,8 +11,12 @@ trait PDParser
             return false;
 
         $response = preg_replace("/\r|\n|\t/", '', $response);
-        preg_match( '/<span class=\'desc lighter\'>.*?<\/span>/s' , $response , $lastActive);
-        $result = array('lastActive' => preg_replace('/(<span class=\'desc lighter\'>)(.*?)(<\/span>)/', '$2', $lastActive[0]));
+        $result = [];
+        // preg_match( '/<span class=\'desc lighter\'>.*?<\/span>/s' , $response , $lastActive);
+        // $result = array('lastActive' => preg_replace('/(<span class=\'desc lighter\'>)(.*?)(<\/span>)/', '$2', $lastActive[0]));
+        
+        //preg_match( '/<ul class=\'ipsList_inline ipsPos_left\'>.*?<\/span>/s' , $response , $lastActive);
+        
         return $result;
     }
 

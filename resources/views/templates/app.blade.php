@@ -22,11 +22,41 @@
     <link href="{{ asset('css/extended.css') }}" rel="stylesheet">
     <link href="{{ asset('css/all.css') }}" rel="stylesheet">
     <link href="{{ asset('css/theme.css') }}" rel="stylesheet">
+    <link href="{{ asset('css/theme.min.css') }}" rel="stylesheet">
     <link href="{{ asset('css/vdatatables.css') }}" rel="stylesheet">
     <link href="{{ asset('css/style.css') }}" rel="stylesheet">
     @yield('header-styles')
 </head>
 <body>
+<nav class="nav nav-responsive">
+    <ul>
+        <li>
+            <a href="{{ route('player.index') }}">
+                Игроки
+            </a>
+        </li>
+        <li>
+            <a href="{{ route('game.index') }}">
+                Игры
+            </a>
+        </li>
+        <li>
+            <a href="{{ route('setting.index') }}">
+                Сеттинги
+            </a>
+        </li>
+        <li>
+            <a href="{{ route('achievements.index') }}">
+                Ачивки
+            </a>
+        </li>
+        <li>
+            <a href="{{ route('player.statistics') }}">
+                Статистика
+            </a>
+        </li>
+    </ul>
+</nav>
 <div id="app">
     <header id="header">
         @include('templates.header')

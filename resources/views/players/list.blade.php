@@ -57,7 +57,7 @@
                                 <tr>
                                     <td><a href="{{ route('player.details', $player->id) }}">{{ $player->name }}</a></td>
                                     <td>{{ $player->last_game }}</td>
-                                    <td>{{ $player->statistics->games_count }}</td>
+                                    <td>{{ empty($player->statistics) ? 0 : $player->statistics->games_count }}</td>
                                     <td>{{ $player->winrate }} %</td>
                                     <td :ref="'js-player-' + {{ $player->id }} + '-last-activity'">--</td>
                                 </tr>

@@ -124,7 +124,7 @@ class Game extends Model
         unset($data['roles']);
         $winners = $data['winners'];
         unset($data['winners']);
-        $data['date'] = $this->transformToDate($data['date'])->toDateTimeString();
+        //$data['date'] = $this->transformToDate($data['date'])->toDateTimeString();
         $this->fill($data);
         if(!$this->save()) {
             return false;
@@ -133,8 +133,10 @@ class Game extends Model
         if(!empty($roles[0]['player_id'])) {
             $this->roles()->delete();
             foreach($roles as $role) {
-                if(!GameRole::create(array_merge($role, ['game_id' => $this->id]))) {
-                    return false;
+                if (!empty($role['player_id'])) {
+                    if(!GameRole::create(array_merge($role, ['game_id' => $this->id]))) {
+                        return false;
+                    }
                 }
             }
         }

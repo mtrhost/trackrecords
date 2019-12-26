@@ -856,5 +856,8 @@ body {
  .sidebar-menu li.active {
     color:#f37e17
  }
+ .navbar-toggler-icon {
+    background-image: url("/static/images/menu.png");
+ }
 }
 

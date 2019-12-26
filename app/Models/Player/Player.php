@@ -72,7 +72,7 @@ class Player extends Model
     public function parseProfile()
     {
         $profileData = PDParser::parseProfileData($this->profile);
-        return $this->last_active = $profileData['lastActive'];
+        return $this->last_active = isset($profileData['lastActive']) ? $profileData['lastActive'] : null;
     }
 
     public function updatePlayerAvatar()
