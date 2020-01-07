@@ -55,7 +55,7 @@ class SettingController extends Controller
                 ]);
             },
             'games' => function($q) {
-                $q->select('id', 'setting_id', 'master_id', 'name')
+                $q->select('id', 'setting_id', 'master_id', 'name', 'number')
                     ->with([
                         'winners' => function($q) {
                             $q->select('id', 'game_id', 'faction_id')

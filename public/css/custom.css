@@ -1,0 +1,66 @@
+a:hover {
+    color: #375a7f;
+    text-decoration: none;
+}
+header {
+    margin-bottom: 25px;
+}
+.nav-item {
+    cursor: pointer;
+}
+.nav-item:hover {
+    background-color: #375a7f;
+}
+.img-thumbnail-dark {
+    max-width: 100%;
+    height: auto;
+}
+.data-block {
+    background-color:#303030;
+    padding: 20px;
+}
+.faction-group-no-role {
+    color: #fff;
+}
+.faction-group-active {
+    color: #008000;
+}
+.faction-group-mafia {
+    color: #FF0018;
+}
+.faction-group-neutral {
+    color: #7F2394;
+}
+.faction-no-role {
+    color: #FFFFFF;
+}
+.faction-active {
+    color: #008000;
+}
+.faction-mafia {
+    color: #FF0018;
+}
+.faction-mafia-second {
+    color: #FF6A00;
+}
+.faction-neutral {
+    color: #7F2394;
+}
+.faction-mafia-third {
+    color: #FF273D;
+}
+.faction-neutral-second {
+    color: rgb(132, 119, 134);
+}
+.faction-neutral-third {
+    color: rgb(2, 235, 99);
+}
+.dataTable-pagination li:not(.active) a {
+   color: #ccc;
+}
+.pagination {
+    float:right;
+}
+.player-card {
+    text-align: center;
+}

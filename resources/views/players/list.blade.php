@@ -4,6 +4,7 @@
 @section('footer-scripts')
     <script src="{{ url('js/vue.js') }}"></script>
     <script src="{{ url('js/vue-resource.js') }}"></script>
+    <script src="{{ url('js/datatables.min.js') }}"></script>
     <script>
         new Vue({
             el: '#players',
@@ -22,6 +23,16 @@
                             setTimeout(this.getLastActivity(playerId), 1000);
                         });
                 }
+            },
+            mounted: function() {
+                $(".players-table").DataTable({
+                    "language": {
+                        "url": "//cdn.datatables.net/plug-ins/1.10.20/i18n/Russian.json"
+                    },
+                    "bLengthChange": false,
+                    "pageLength": 50,
+                    "ordering": false
+                });
             },
             created: function(){
                 /*for (var player in this.players.data) {
@@ -66,13 +77,13 @@
                     </table>
                 </div>
             </div>
-            <div class="row">
+            <?php /*<div class="row">
                 <div class="col-sm-12">
-                <div class="filter-pagination m-b-30">
-                    {{ $players->links() }}
+                    <div class="filter-pagination m-b-30">
+                        {{ $players->links() }}
+                    </div>
                 </div>
-            </div>
-            </div>
+            </div>*/?>
         </div>
     </div>
 

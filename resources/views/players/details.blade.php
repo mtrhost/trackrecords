@@ -6,14 +6,14 @@
     <script src="{{ url('js/vue.js') }}"></script>
     <script src="{{ url('js/vue-resource.js') }}"></script>
     <script src="{{ url('js/progressbar.min.js') }}"></script>
-    <script src="{{ url('js/vdatatables.js') }}"></script>
+    <script src="{{ url('js/datatables.min.js') }}"></script>
     <script>
         new Vue({
             el: '#player',
             data: {
                 player: <?php echo $player->toJson() ?>,
                 color: '',
-                tab: 'total',
+                tab: 'games',
                 totalGamesCount: 0,
                 totalWinsCount: 0,
                 totalLosesCount: 0,
@@ -58,8 +58,7 @@
                             // Text color.
                             // Default: same as stroke color (options.color)
                             //color: '#999',
-                            position: 'absolute',
-                            top: '30px',
+                            position: 'relative',
                             padding: 0,
                             margin: 0,
                             transform: null
@@ -74,13 +73,29 @@
                 });
                 
                 bar.animate(this.player.winrate / 100, 1.0);  // Number from 0.0 to 1.0
+
+                Vue.nextTick(function () {
+                    $("#GamesTable").DataTable({
+                        "language": {
+                            "url": "//cdn.datatables.net/plug-ins/1.10.20/i18n/Russian.json"
+                        },
+                        "bLengthChange": false,
+                        "pageLength": 25,
+                        "order": [[ 0, 'desc' ]]
+                    });
+                })
             },
             watch: {
                 tab: function (newValue, oldValue) {
                     if (newValue == 'games') {
                         Vue.nextTick(function () {
-                            var table = new DataTable("#GamesTable", {
-                                perPageSelect: false,
+                            $("#GamesTable").DataTable({
+                                "language": {
+                                    "url": "//cdn.datatables.net/plug-ins/1.10.20/i18n/Russian.json"
+                                },
+                                "bLengthChange": false,
+                                "pageLength": 25,
+                                "order": [[ 0, 'desc' ]]
                             });
                         })
                     }
@@ -89,149 +104,95 @@
         });
     </script>
 @endsection
-<div id="player">
-    <section class="hero hero-profile">
-        <div class="overlay"></div>
-        <div class="container">
-            <div class="text-center col hidden-md-up m-y-20">
-                <a href="#">
-                    <img src="{{ $player->profile_image }}" alt="{{ $player->name }}">
-                </a>
-                <div class="profile-info m-t-10">
-                    <h5 class="d-inline">{{ $player->name }}</h5>
-                </div>
-
-                <div class="m-t-10 steam-profile">
-                    <progress class="winrate-bar" value="{{ $player->winrate }}" max="100"></progress> 
-                </div>
-
-                <div class="font-italic last-seen">
-                    <span>{{ $player->last_active }}</span>
-                </div>
-            </div>
-            <div class="hero-block">
-                <div class="hero-left hidden-md-down">
-                <div>
-                    <h1 class="d-inline">{{ $player->name }}</h1>
-                </div>
-                <div class="m-t-10 steam-profile">
+<div id="player" class="container">
+    <section class="row hero hero-profile">
+        <div class="col-lg-4 col-sm-12">
+            <div class="card player-card">
+                <h3 class="card-header">{{ $player->name }}</h3>
+                <img style="height: 200px; width: 100%; display: block;" 
+                    src="{{ $player->profile_image }}" alt="{{ $player->name }}">
+                <div class="card-body">
                     <div id="winrate-bar" class="progress-bar-container line-styled"></div>
                 </div>
-                <div class="font-italic last-seen">
-                    <span>{{ $player->last_active }}</span>
-                </div>
+                <div class="card-footer text-muted">
+                    {{ $player->last_active }}
                 </div>
             </div>
         </div>
-    </section>
-    <section class="toolbar toolbar-profile p-t-0 hidden-md-down">
-        <div class="container">
-            <div class="profile-avatar ">
-                <a href="#">
-                    <img src="{{ $player->profile_image }}" alt="{{ $player->name }}">
-                </a>
-                <div class="sticky">
-                <div class="profile-info">
-                    <h5>{{ $player->name }}</h5>
-                    <span>{{ $player->last_active }}</span>
+        <div class="col-lg-8 col-sm-12">
+            <div class="container-fluid">
+                <div class="row data-block">
+                    <table class="table" role="grid">
+                        <thead>
+                            <th>Фракция</th>
+                            <th>Игр сыграно</th>
+                            <th>Побед / поражений</th>
+                            <th>Доля побед</th>
+                        </thead>
+                        <tbody>
+                            <tr class="profile__no-role-row">
+                                <td>Мирный житель</td>
+                                <td>{{ $player->statistics->games_count_no_role }}</td>
+                                <td>{{ $player->statistics->wins_no_role . ' / '}}@{{ this.getFactionLosesCount('no_role') }}</td>
+                                <td>{{ $player->winrate_no_role . ' %' }}</td>
+                            </tr>
+                            <tr class="profile__active-row" style="{{ 'color:' . $player->factions['active'][0]->color . ';' }}">
+                                <td>Актив</td>
+                                <td>{{ $player->statistics->games_count_active }}</td>
+                                <td>{{ $player->statistics->wins_active . ' / '}}@{{ this.getFactionLosesCount('active') }}</td>
+                                <td>{{ $player->winrate_active . ' %' }}</td>
+                            </tr>
+                            <tr class="profile__mafia-row" style="{{ 'color:' . $player->factions['mafia'][0]->color . ';' }}">
+                                <td>Мафия</td>
+                                <td>{{ $player->statistics->games_count_mafia }}</td>
+                                <td>{{ $player->statistics->wins_mafia . ' / '}}@{{ this.getFactionLosesCount('mafia') }}</td>
+                                <td>{{ $player->winrate_mafia . ' %' }}</td>
+                            </tr>
+                            <tr class="profile__neutral-row" style="{{ 'color:' . $player->factions['neutral'][0]->color . ';' }}">
+                                <td>Маньяк</td>
+                                <td>{{ $player->statistics->games_count_neutral }}</td>
+                                <td>{{ $player->statistics->wins_neutral . ' / '}}@{{ this.getFactionLosesCount('neutral') }}</td>
+                                <td>{{ $player->winrate_neutral . ' %' }}</td>
+                            </tr>
+                            <tr>
+                                <td>Всего</td>
+                                <td>@{{ totalGamesCount }}</td>
+                                <td>@{{ totalWinsCount + '/' +  totalLosesCount}}</td>
+                                <td>{{ $player->winrate . ' %' }}</td>
+                            </tr>
+                            <tr>
+                                <td class="text-nowrap" colspan="2">Ролей получено: {{ $player->roleRate }}%</td>
+                                <td class="text-nowrap" colspan="2">Игр проведено: {{ $player->games_mastered_count }}</td>
+                            </tr>
+                            <tr>
+                                <td class="text-nowrap" colspan="2">Молний получено: {{ $player->lightningsCount }}</td>
+                                <td class="text-nowrap" colspan="2">
+                                    Выгнан днем/молнирован на мирном: @{{ civilianNegativeActionsCount + ' / ' + civilianGamesCount }}
+                                    {{ ' (' . $player->cityNegativeActionsRate . '%)' }}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="text-nowrap" colspan="2">В среднем прожито дней на мафии: {{ $player->mafiaAverageDaysSurvived }}</td>
+                                <td class="text-nowrap" colspan="2">Максимальная серия побед: {{ $player->statistics->maximal_winstreak }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
-                </div>
-            </div>
-            <ul class="toolbar-nav hidden-md-down">
-                <li :class="{ active:isActive('total') }"><a @click="setActive('total')">Общая</a></li>
-                <li :class="{ active:isActive('games') }"><a @click="setActive('games')">Игры</a></li>
-                <li :class="{ active:isActive('achievements') }"><a @click="setActive('achievements')">Ачивки</a></li>
-            </ul>
-        </div>
-    </section>
-    <section class="p-t-30">
-        <div class="container">
-
-            {{-- Секция основной статистики --}}
-            <template v-if="isActive('total')">
                 <div class="row">
-                    <div class="col-lg-12">
-                        <div class="card custom-card">
-
-                            <div class="card-block p-t-0">
-                                <div id="DataTables_Table_0_wrapper" class="dataTables_wrapper dt-bootstrap4 no-footer">
-                                    <div class="row">
-                                        <div class="col-sm-12 col-md-6"></div>
-                                        <div class="col-sm-12 col-md-6"></div>
-                                    </div>
-                                    <div class="row">
-                                        <div class="col-sm-12">
-                                            <table class="players-table latest-matches table dataTable no-footer" id="DataTables_Table_0" role="grid">
-                                                <thead>
-                                                    <th>Фракция</th>
-                                                    <th>Игр сыграно</th>
-                                                    <th>Побед / поражений</th>
-                                                    <th>Доля побед</th>
-                                                </thead>
-                                                <tbody>
-                                                    <tr class="profile__no-role-row">
-                                                        <td>Мирный житель</td>
-                                                        <td>{{ $player->statistics->games_count_no_role }}</td>
-                                                        <td>{{ $player->statistics->wins_no_role . ' / '}}@{{ this.getFactionLosesCount('no_role') }}</td>
-                                                        <td>{{ $player->winrate_no_role . ' %' }}</td>
-                                                    </tr>
-                                                    <tr class="profile__active-row" style="{{ 'color:' . $player->factions['active'][0]->color . ';' }}">
-                                                        <td>Актив</td>
-                                                        <td>{{ $player->statistics->games_count_active }}</td>
-                                                        <td>{{ $player->statistics->wins_active . ' / '}}@{{ this.getFactionLosesCount('active') }}</td>
-                                                        <td>{{ $player->winrate_active . ' %' }}</td>
-                                                    </tr>
-                                                    <tr class="profile__mafia-row" style="{{ 'color:' . $player->factions['mafia'][0]->color . ';' }}">
-                                                        <td>Мафия</td>
-                                                        <td>{{ $player->statistics->games_count_mafia }}</td>
-                                                        <td>{{ $player->statistics->wins_mafia . ' / '}}@{{ this.getFactionLosesCount('mafia') }}</td>
-                                                        <td>{{ $player->winrate_mafia . ' %' }}</td>
-                                                    </tr>
-                                                    <tr class="profile__neutral-row" style="{{ 'color:' . $player->factions['neutral'][0]->color . ';' }}">
-                                                        <td>Маньяк</td>
-                                                        <td>{{ $player->statistics->games_count_neutral }}</td>
-                                                        <td>{{ $player->statistics->wins_neutral . ' / '}}@{{ this.getFactionLosesCount('neutral') }}</td>
-                                                        <td>{{ $player->winrate_neutral . ' %' }}</td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td>Всего</td>
-                                                        <td>@{{ totalGamesCount }}</td>
-                                                        <td>@{{ totalWinsCount + '/' +  totalLosesCount}}</td>
-                                                        <td>{{ $player->winrate . ' %' }}</td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td class="text-nowrap" colspan="2">Ролей получено: {{ $player->roleRate }}%</td>
-                                                        <td class="text-nowrap" colspan="2">Игр проведено: {{ $player->games_mastered_count }}</td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td class="text-nowrap" colspan="2">Молний получено: {{ $player->lightningsCount }}</td>
-                                                        <td class="text-nowrap" colspan="2">
-                                                            Выгнан днем/молнирован на мирном: @{{ civilianNegativeActionsCount + ' / ' + civilianGamesCount }}
-                                                            {{ ' (' . $player->cityNegativeActionsRate . '%)' }}
-                                                        </td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td class="text-nowrap" colspan="2">В среднем прожито дней на мафии: {{ $player->mafiaAverageDaysSurvived }}</td>
-                                                        <td class="text-nowrap" colspan="2">Максимальная серия побед: {{ $player->statistics->maximal_winstreak }}</td>
-                                                    </tr>
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                    </div>
-                                    <div class="row">
-                                        <div class="col-sm-12 col-md-7">
-                                            <div class="dataTables_paginate paging_numbers" id="DataTables_Table_0_paginate">
-                                                <ul class="pagination"></ul>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                            </div>
-                        </div>
-                    </div>
+                    <ul class="nav nav-tabs">
+                        <li class="nav-item">
+                            <a class="nav-link" :class="{ active:isActive('games') }" data-toggle="tab" @click="setActive('games')">Игры</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" :class="{ active:isActive('achievements') }" data-toggle="tab" @click="setActive('achievements')">Ачивки</a>
+                        </li>
+                    </ul>
                 </div>
-            </template>
+            </div>
+        </div>
+    </section>
+    <section class="row p-t-30">
+        <div class="container">
 
             {{-- Секция игр --}}
             <template v-if="isActive('games')">
@@ -290,14 +251,16 @@
 
             {{-- Секция ачивок --}}
             <template v-if="isActive('achievements')">
-                <div class="card card-danger custom-card">
-                    <div class="card-block p-y-0">
+                <div class="row data-block">
+                    @if($player->achievements->isEmpty())
+                        <h2>Достижений нет</h2>
+                    @else
                         <table class="table achievements__header-cells">
                             <tbody>
                                 @foreach($player->achievements as $achievement)
                                     <tr>
                                         <td class="align-middle">
-                                            <img class="achievements__main-image" src="{{ $achievement->image_original }}" alt="{{ $achievement->name }}">
+                                            <img class="achievements__main-image img-thumbnail-dark" src="{{ $achievement->image_original }}" alt="{{ $achievement->name }}">
                                         </td>
                                         <td class="align-middle">
                                             {{ $achievement->name }}
@@ -312,7 +275,7 @@
                                 @endforeach
                             </tbody>
                         </table>
-                    </div>
+                    @endif
                 </div>
             </template>
         </div>

@@ -22,7 +22,7 @@ class PlayerController extends Controller
             ])
             ->groupBy('last_game', 'name', 'id', 'profile')
             ->orderByRaw("last_game DESC NULLS LAST, name ASC")
-            ->paginate(50);
+            ->get();
             
         return view('players/list', compact('players'));
     }

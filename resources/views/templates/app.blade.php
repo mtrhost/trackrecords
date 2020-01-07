@@ -10,67 +10,39 @@
     <title>@yield('title')</title>
 
     {{--Scripts--}}
-    <script src="{{ asset('js/app.js') }}"></script>
+    <script src="{{ asset('js/jQuery.js') }}"></script>
+    <script src="{{ asset('js/bootstrap.js') }}"></script>
     <script src="{{ asset('js/script.js') }}"></script>
 
     {{--Styles--}}
 
-
     <link href="{{ asset('css/app.css') }}" rel="stylesheet">
     <link href="{{ asset('css/normalize.css') }}" rel="stylesheet">
     <link href="{{ asset('css/css.css') }}" rel="stylesheet">
-    <link href="{{ asset('css/extended.css') }}" rel="stylesheet">
+    <?php /*<link href="{{ asset('css/extended.css') }}" rel="stylesheet">
     <link href="{{ asset('css/all.css') }}" rel="stylesheet">
     <link href="{{ asset('css/theme.css') }}" rel="stylesheet">
-    <link href="{{ asset('css/theme.min.css') }}" rel="stylesheet">
-    <link href="{{ asset('css/vdatatables.css') }}" rel="stylesheet">
-    <link href="{{ asset('css/style.css') }}" rel="stylesheet">
+    <link href="{{ asset('css/theme.min.css') }}" rel="stylesheet">*/?>
+    <link href="{{ asset('css/bootstrap.min.css') }}" rel="stylesheet">
+    <link href="{{ asset('css/datatables.min.css') }}" rel="stylesheet">
+    <link href="{{ asset('css/custom.css') }}" rel="stylesheet">
+    <?php /*<link href="{{ asset('css/style.css') }}" rel="stylesheet">*/?>
     @yield('header-styles')
 </head>
 <body>
-<nav class="nav nav-responsive">
-    <ul>
-        <li>
-            <a href="{{ route('player.index') }}">
-                Игроки
-            </a>
-        </li>
-        <li>
-            <a href="{{ route('game.index') }}">
-                Игры
-            </a>
-        </li>
-        <li>
-            <a href="{{ route('setting.index') }}">
-                Сеттинги
-            </a>
-        </li>
-        <li>
-            <a href="{{ route('achievements.index') }}">
-                Ачивки
-            </a>
-        </li>
-        <li>
-            <a href="{{ route('player.statistics') }}">
-                Статистика
-            </a>
-        </li>
-    </ul>
-</nav>
 <div id="app">
     <header id="header">
         @include('templates.header')
     </header>
-    <div class="wrapper">
-        <div class="content">
+    <div class="container-fluid">
+        <div class="row">
             @yield('layout')
         </div>
-        <div class="container"></div>
-        <footer id="footer">
-            @include('templates.footer')
-        </footer>
     </div>
 </div>
+<footer id="footer" class="footer">
+    @include('templates.footer')
+</footer>
 @yield('footer-scripts')
 </body>
 </html>

@@ -1,11 +1,10 @@
 @extends('templates.app')
 @section('title','Сеттинги')
 @section('layout')
-<section>
-    <div class="container settings" id="settings-list">
-        <div class="row">
-        <div class="col-lg-4 hidden-sm-down">
-            <div class="sidebar">
+<section class="container-fluid settings" id="settings-list">
+    <div class="row">
+        <div class="col-lg-3 col-sm-12 hidden-sm-down">
+            <div class="data-block">
                 <div class="widget widget-search widget-filter">
                     <form id="finder-form" method="GET" action="{{ route('setting.index') }}">
                         <div class="form-group">
@@ -21,14 +20,14 @@
                             <input class="form-control" name="author" type="text" value="{{ app('request')->input('author') }}" placeholder="Введите имя автора">
                         </div>
                         <div class="form-group">
-                            <input class="btn" type="submit" value="Поиск">
+                            <button class="btn btn-success">Поиск</button>
                         </div>
                     </form>
                 </div>
             </div>
         </div>
 
-        <div class="col-lg-8 filter-results card custom-card">
+        <div class="col-lg-9 filter-results card custom-card data-block">
             <div class="m-y-10">
                 <h5 class="available-players">Всего сеттингов: {{ $settings->total() }}</h5>
             </div>
@@ -51,7 +50,7 @@
                                     <th scope="row">{{ $setting->id }}</th>
                                     <td><a href="{{ route('setting.details', $setting->id) }}">{{ $setting->name }}</a></td>
                                     <td>{{ $setting->players_count }}</td>
-                                    <td>{{ $setting->author->name }}</td>
+                                    <td><a href="{{ route('player.details', $setting->author->id) }}">{{ $setting->author->name }}</a></td>
                                 </tr>
                             @endforeach
                         @endif
@@ -64,7 +63,6 @@
             </div>
 
         </div>
-        </div>
     </div>
-    </section>
+</section>
 @endsection

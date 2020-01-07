@@ -16,7 +16,7 @@
                             <tbody>
                                 <tr>
                                     <td>Автор</td>
-                                    <td>{{ $setting->author->name }}</td>
+                                    <td><a href="{{ route('player.details', $setting->author->id) }}">{{ $setting->author->name }}</a></td>
                                 </tr>
                                 @foreach($setting->rolesSorted as $roleGroup)
                                     <tr>
