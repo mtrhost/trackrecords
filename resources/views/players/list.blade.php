@@ -49,7 +49,7 @@
                 Список игроков
             </h1>
         </div>
-        <div class="card-block p-y-0" id="players">
+        <div class="card-block data-block" id="players">
             <div class="row">
                 <div class="col-sm-12">
                     <table class="players-table table">
