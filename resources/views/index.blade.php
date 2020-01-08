@@ -1,14 +1,14 @@
 @extends('templates.app')
 @section('title','Главная')
 @section('layout')
-<section class="p-t-5">
-    <div class="container index-page p-r-0">
+<section class="container">
+    <div class="row">
         <div class="card custom-card index-card">
             <div class="card-header">
                 <h1 class="card-title">Redesign! Rebuild! Return!</h1>
             </div>
 
-            <div class="card-block">
+            <div class="card-block data-block">
                 <div>
                     Вот и стата подъехала.
                 </div>
