@@ -109,7 +109,7 @@
         <div class="col-lg-4 col-sm-12">
             <div class="card player-card">
                 <h3 class="card-header">{{ $player->name }}</h3>
-                <img style="height: 200px; width: 100%; display: block;" 
+                <img class="card-img-top mx-auto d-block" 
                     src="{{ $player->profile_image }}" alt="{{ $player->name }}">
                 <div class="card-body">
                     <div id="winrate-bar" class="progress-bar-container line-styled"></div>
@@ -119,7 +119,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-lg-8 col-sm-12">
+        <div class="col-lg-8 col-sm-12 table-responsive">
             <div class="container-fluid">
                 <div class="row data-block">
                     <table class="table" role="grid">
@@ -198,7 +198,7 @@
             <template v-if="isActive('games')">
                 <div class="row">
                     <div class="col-lg-12">
-                        <div class="card custom-card">
+                        <div class="card custom-card table-responsive">
 
                             <div class="card-block p-t-0">
                                 <div id="DataTables_Table_0_wrapper" class="dataTables_wrapper dt-bootstrap4 no-footer">
@@ -251,7 +251,7 @@
 
             {{-- Секция ачивок --}}
             <template v-if="isActive('achievements')">
-                <div class="row data-block">
+                <div class="row data-block table-responsive">
                     @if($player->achievements->isEmpty())
                         <h2>Достижений нет</h2>
                     @else

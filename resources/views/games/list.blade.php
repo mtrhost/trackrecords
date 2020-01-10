@@ -8,7 +8,7 @@
                 Список игр
             </h1>
         </div>
-        <div class="card-block p-y-0" id="players">
+        <div class="card-block table-responsive" id="players">
             <div class="row">
                 <div class="col-lg-12">
                     <div class="card custom-card">

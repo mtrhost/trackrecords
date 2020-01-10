@@ -64,3 +64,6 @@ header {
 .player-card {
     text-align: center;
 }
+.table-responsive {
+    display: table;
+}

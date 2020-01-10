@@ -27,7 +27,7 @@
             </div>
         </div>
 
-        <div class="col-lg-9 filter-results card custom-card data-block">
+        <div class="col-lg-9 filter-results card custom-card data-block table-responsive">
             <div class="m-y-10">
                 <h5 class="available-players">Всего сеттингов: {{ $settings->total() }}</h5>
             </div>

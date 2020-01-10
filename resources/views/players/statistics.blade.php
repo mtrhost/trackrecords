@@ -178,7 +178,7 @@
             </div>
         </div>
 
-        <div class="col-lg-10 filter-results card custom-card">
+        <div class="col-lg-10 filter-results card custom-card table-responsive">
             <div class="m-y-10">
                 <h5 class="available-players"></h5>
             </div>

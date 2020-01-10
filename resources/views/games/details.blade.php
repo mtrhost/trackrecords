@@ -58,7 +58,7 @@
             </div>
         </div>
 
-        <div class="col-lg-8 filter-results card custom-card">
+        <div class="col-lg-8 filter-results card custom-card table-responsive">
             <div class="post">
                 <table class="table">
                     <thead>
