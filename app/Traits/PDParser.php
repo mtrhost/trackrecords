@@ -12,11 +12,11 @@ trait PDParser
 
         $response = preg_replace("/\r|\n|\t/", '', $response);
         $result = [];
-        // preg_match( '/<span class=\'desc lighter\'>.*?<\/span>/s' , $response , $lastActive);
-        // $result = array('lastActive' => preg_replace('/(<span class=\'desc lighter\'>)(.*?)(<\/span>)/', '$2', $lastActive[0]));
-        
-        //preg_match( '/<ul class=\'ipsList_inline ipsPos_left\'>.*?<\/span>/s' , $response , $lastActive);
-        
+        preg_match( '/class="ipsType_minorHeading">Посещение.*?<\/time>/s' , $response , $ipline);
+        if (!empty($ipline)) {
+            preg_match( '/<time datetime=\'.*?<\/time>/s' , $ipline[0] , $lastActive);
+            $result = array('lastActive' => preg_replace('/(.*\'>)(.*?)(<\/time>)/', '$2', $lastActive[0]));
+        }
         return $result;
     }
 
@@ -26,9 +26,11 @@ trait PDParser
         if(!$response)
             return false;
 
-        preg_match( '/<img class="ipsUserPhoto" id=\'profile_photo\' .*?>/' , $response , $links );
-        if(isset($links[0]) && !preg_match('/style_images\/Prodota_Images/', $links[0]))
-            return preg_replace('/(.*?src=\')(.*?)(\'.*)/', '$2', $links[0]);
+        $response = preg_replace("/\r|\n|\t/", '', $response);
+
+        preg_match( '/id="elProfilePhoto".*?<\/a>/' , $response , $links );
+        if(isset($links[0])/* && !preg_match('/style_images\/Prodota_Images/', $links[0])*/)
+            return preg_replace('/(.*?href=\")(.*?)(\".*)/', '$2', $links[0]);
         else
             return false;
     }

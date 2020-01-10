@@ -16,7 +16,9 @@
                     this.$http
                         .post("<?php echo route('player.getLastActivity')?>", { _token: "{{ csrf_token() }}", id: playerId})
                         .then(function (response) {
-                            this.$refs['js-player-' + playerId + '-last-activity'].innerText = response.body;
+                            if (response.body.length > 0) {
+                                this.$refs['js-player-' + playerId + '-last-activity'].innerText = response.body;
+                            }
                         }, console.log)
                         .catch(function (error) {
                             console.log(error);
@@ -35,8 +37,8 @@
                 });
             },
             created: function(){
-                /*for (var player in this.players.data) {
-                    setTimeout(this.getLastActivity(this.players.data[player].id), 5000);
+                /*for (var player in this.players) {
+                    setTimeout(this.getLastActivity(this.players[player].id), 5000);
                 }*/
             }
         });
@@ -70,7 +72,9 @@
                                     <td>{{ $player->last_game }}</td>
                                     <td>{{ empty($player->statistics) ? 0 : $player->statistics->games_count }}</td>
                                     <td>{{ $player->winrate }} %</td>
-                                    <td :ref="'js-player-' + {{ $player->id }} + '-last-activity'">--</td>
+                                    <td :ref="'js-player-' + {{ $player->id }} + '-last-activity'">
+                                        <button class="btn btn-success" @click="getLastActivity({{ $player->id }})">Проверить</button>
+                                    </td>
                                 </tr>
                             @endforeach 
                         </tbody>
