@@ -94,11 +94,12 @@ class PlayerController extends Controller
 
     public function statistics()
     {
-        $statistics = Player::select('id', 'name')
+        $statistics = Player::select('id', 'name', 'last_game')
             ->whereHas('statistics')
             ->with([
                 'statistics'
             ])
+            ->orderBy('last_game', 'ASC')
             ->get()->each(function(&$value){
                 $value->gamesCount = $value->getGamesCount(true);
                 $value->gamesCountWoMastered = $value->getGamesCount();
