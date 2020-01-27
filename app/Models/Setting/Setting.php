@@ -36,15 +36,30 @@ class Setting extends Model
     public static function saveWithRoles($request)
     {
         $roles = $request['roles'];
+        if (empty($roles)) {
+            return false;
+        }
         unset($request['roles']);
         $setting = new Setting($request);
         if(!$setting->save()) {
             return false;
         }
         
-        $roles = SettingRole::convertSyncedData($roles);
-        if(!$setting->roles()->sync($roles)) {
-            return false;
+        // $roles = SettingRole::convertSyncedData($roles);
+        // if(!$setting->roles()->sync($roles)) {
+        //     return false;
+        // }
+        $preservedIds = [];
+        foreach($roles as &$role) {
+            $model = SettingRole::firstOrNew(['setting_id' => $setting->id, 'role_id' => $role['role_id'], 'faction_id' => $role['faction_id']]);
+            if(!$model->save()) {
+                return false;
+            }
+            $preservedIds[] = $model->id;
+        }
+        $oldData = SettingRole::where('setting_id', $setting->id)->whereNotIn('id', $preservedIds)->get();
+        foreach($oldData as $old) {
+            $old->delete();
         }
 
         return true;
