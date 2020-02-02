@@ -39,19 +39,26 @@ class PlayerAchievement extends Model
                     if(!$player->assignRegularAchievements($achievements))
                         return false;
                         
-                    $topResults->countNeutralWinrateResult($player);
-                    $topResults->countMafiaWinrateResult($player);
-                    $topResults->countActiveWinrateResult($player);
-                    $topResults->countNoRoleWinrateResult($player);
-                    $topResults->countWinrate($player);
-                    $topResults->countRoleRate($player);
-                    $topResults->countCityNegativeActionsRate($player);
-                    $topResults->countAverageMafiaDaysSurvivedRate($player);
-                    $topResults->countWinstreak($player);
+                    if ($player->isActive()) {
+                        $topResults->countNeutralWinrateResult($player);
+                        $topResults->countMafiaWinrateResult($player);
+                        $topResults->countActiveWinrateResult($player);
+                        $topResults->countNoRoleWinrateResult($player);
+                        $topResults->countWinrate($player);
+                        $topResults->countRoleRate($player);
+                        $topResults->countCityNegativeActionsRate($player);
+                        $topResults->countAverageActiveDaysSurvivedRate($player);
+                        $topResults->countAverageMafiaDaysSurvivedRate($player);
+                        $topResults->countAverageNeutralDaysSurvivedRate($player);
+                        $topResults->countWinstreak($player);
+                    }
                 }
             }
         }
-        if(!self::assignUniqueAchievements($topResults, $achievements))
+        if(
+            !self::assignUniqueAchievements($topResults, $achievements)
+            || !self::assignCaesarAchievement($achievements)
+        )
             return false;
 
         return true;
@@ -62,6 +69,22 @@ class PlayerAchievement extends Model
         foreach($topResults->get() as $key => $topResult) {
             if(!self::create(['player_id' => $topResult['player'], 'achievement_id' => $achievements->filter(function($value) use($key) { return $value->alias === $key; })->first()->id]))
                 return false;
+        }
+
+        return true;
+    }
+
+    public static function assignCaesarAchievement($achievements)
+    {
+        $caesar = ['id' => null, 'count' => 0];
+        $players = Player::whereHas('achievements')->withCount('achievements')->get();
+        foreach ($players as $player) {
+            if ($player->achievements_count > $caesar['count']) {
+                $caesar = ['id' => $player->id, 'count' => $player->achievements_count];
+            }
+        }
+        if (!self::create(['player_id' => $caesar['id'], 'achievement_id' => $achievements->filter(function($value) { return $value->alias === 'caesar'; })->first()->id])) {
+            return false;
         }
 
         return true;

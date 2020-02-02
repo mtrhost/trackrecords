@@ -78,12 +78,26 @@ class PlayerStatistics extends Model
 
         return round((($this->lightnings_civilian + $this->banished_civilian) / $this->civilian_games_count) * 100, $accuracy);
     }
+    public function getActiveAverageDaysSurvived($accuracy = 0)
+    {
+        if($this->games_count_active === 0)
+            return 0;
+
+        return round(($this->days_survived_active / $this->games_count_active), $accuracy);
+    }
     public function getMafiaAverageDaysSurvived($accuracy = 0)
     {
         if($this->games_count_mafia === 0)
             return 0;
 
         return round(($this->days_survived_mafia / $this->games_count_mafia), $accuracy);
+    }
+    public function getNeutralAverageDaysSurvived($accuracy = 0)
+    {
+        if($this->games_count_neutral === 0)
+            return 0;
+
+        return round(($this->days_survived_neutral / $this->games_count_neutral), $accuracy);
     }
 
     public function countGameRole($alias, $gameRole)

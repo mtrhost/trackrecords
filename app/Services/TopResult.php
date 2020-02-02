@@ -23,7 +23,11 @@ class TopResult
 
     private $lucky;
 
+    private $coldFeet;
+
     private $survivor;
+
+    private $ninja;
 
     private $winstreak;
 
@@ -90,10 +94,22 @@ class TopResult
         }
     }
 
+    public function countAverageActiveDaysSurvivedRate(Player $player)
+    {
+        $rate = $player->getActiveAverageDaysSurvived(2);
+        $this->countPropery($player, 'coldFeet', 'games_count_active', 10, $rate);
+    }
+
     public function countAverageMafiaDaysSurvivedRate(Player $player)
     {
         $rate = $player->getMafiaAverageDaysSurvived(2);
         $this->countPropery($player, 'survivor', 'games_count_mafia', 10, $rate);
+    }
+
+    public function countAverageNeutralDaysSurvivedRate(Player $player)
+    {
+        $rate = $player->getNeutralAverageDaysSurvived(2);
+        $this->countPropery($player, 'ninja', 'games_count_neutral', 5, $rate);
     }
 
     public function countWinstreak(Player $player)

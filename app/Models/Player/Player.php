@@ -219,12 +219,28 @@ class Player extends Model
         return $this->statistics->getCityNegativeActionsRate($accuracy);
     }
 
+    public function getActiveAverageDaysSurvived($accuracy = 0)
+    {
+        if(empty($this->statistics))
+            return 0;
+
+        return $this->statistics->getActiveAverageDaysSurvived($accuracy);
+    }
+
     public function getMafiaAverageDaysSurvived($accuracy = 0)
     {
         if(empty($this->statistics))
             return 0;
 
         return $this->statistics->getMafiaAverageDaysSurvived($accuracy);
+    }
+
+    public function getNeutralAverageDaysSurvived($accuracy = 0)
+    {
+        if(empty($this->statistics))
+            return 0;
+
+        return $this->statistics->getNeutralAverageDaysSurvived($accuracy);
     }
 
     public function assignRegularAchievements($achievements)

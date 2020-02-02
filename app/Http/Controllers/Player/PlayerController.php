@@ -100,6 +100,7 @@ class PlayerController extends Controller
             ->with([
                 'statistics'
             ])
+            ->withCount('achievements')
             ->orderBy('last_game', 'ASC')
             ->get()->each(function(&$value){
                 $value->gamesCount = $value->getGamesCount(true);
@@ -110,8 +111,11 @@ class PlayerController extends Controller
                 $value->statistics->civilian_games_count;
                 $value->roleRate = $value->getRoleRate(2);
                 $value->cityNegativeActionsRate = $value->getCityNegativeActionsRate(2);
+                $value->activeAverageDaysSurvived = $value->getActiveAverageDaysSurvived(2);
                 $value->mafiaAverageDaysSurvived = $value->getMafiaAverageDaysSurvived(2);
+                $value->neutralAverageDaysSurvived = $value->getNeutralAverageDaysSurvived(2);
                 $value->routeLink = route('player.details', $value->id);
+                $value->isActive = $value->isActive();
             });
             
         return view('players/statistics', compact('statistics'));

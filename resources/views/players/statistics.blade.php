@@ -46,11 +46,20 @@
                         case 'civilianNegative':
                             return this.playersByCivilianNegativeActions();
                         break;
+                        case 'activeSurvived':
+                            return this.playersByActiveAverageSurvivedDays();
+                        break;
                         case 'mafiaSurvived':
                             return this.playersByMafiaAverageSurvivedDays();
                         break;
+                        case 'neutralSurvived':
+                            return this.playersByNeutralAverageSurvivedDays();
+                        break;
                         case 'winstreak':
                             return this.playersByMaximalWinstreak();
+                        break;
+                        case 'caesar':
+                            return this.playersByAchievements();
                         break;
                     }
                 }
@@ -59,10 +68,13 @@
                 setActiveTab: function (menuItem) {
                     this.activeTab = menuItem
                 },
-                filterAndSort: function(filterKeys, sortKeys, range, sortOrder) {
+                filterAndSort: function(filterKeys, sortKeys, range, sortOrder, excludeInactive) {
                     if(sortOrder === undefined) sortOrder = 'desc';
                     return this.players
                         .filter(function (player, index) {
+                            if (excludeInactive === true && player.isActive === false) {
+                                return false;
+                            }
                             var result = player;
                             for(var i = 0; i < filterKeys.length; i++) {
                                 result = result[filterKeys[i]];
@@ -90,34 +102,43 @@
                     return this.filterAndSort(['lightningsCount'], ['lightningsCount'], 5);
                 },
                 playersByWinrate: function() {
-                    return this.filterAndSort(['gamesCountWoMastered'], ['winrate'], 30);
+                    return this.filterAndSort(['gamesCountWoMastered'], ['winrate'], 30, 'desc', true);
                 },
                 playersByWinrateNoRole: function() {
-                    return this.filterAndSort(['statistics', 'games_count_no_role'], ['winrate_no_role'], 15);
+                    return this.filterAndSort(['statistics', 'games_count_no_role'], ['winrate_no_role'], 15, 'desc', true);
                 },
                 playersByWinrateActive: function() {
-                    return this.filterAndSort(['statistics', 'games_count_active'], ['winrate_active'], 15);
+                    return this.filterAndSort(['statistics', 'games_count_active'], ['winrate_active'], 15, 'desc', true);
                 },
                 playersByWinrateCivilian: function() {
-                    return this.filterAndSort(['statistics', 'civilian_games_count'], ['winrateCivilian'], 20);
+                    return this.filterAndSort(['statistics', 'civilian_games_count'], ['winrateCivilian'], 20, 'desc', true);
                 },
                 playersByWinrateMafia: function() {
-                    return this.filterAndSort(['statistics', 'games_count_mafia'], ['winrate_mafia'], 10);
+                    return this.filterAndSort(['statistics', 'games_count_mafia'], ['winrate_mafia'], 10, 'desc', true);
                 },
                 playersByWinrateNeutral: function() {
-                    return this.filterAndSort(['statistics', 'games_count_neutral'], ['winrate_neutral'], 4);
+                    return this.filterAndSort(['statistics', 'games_count_neutral'], ['winrate_neutral'], 4, 'desc', true);
                 },
                 playersByRoleRate: function() {
-                    return this.filterAndSort(['gamesCountWoMastered'], ['roleRate'], 30);
+                    return this.filterAndSort(['gamesCountWoMastered'], ['roleRate'], 30, 'desc', true);
                 },
                 playersByCivilianNegativeActions: function() {
-                    return this.filterAndSort(['statistics', 'civilian_games_count'], ['cityNegativeActionsRate'], 30, 'asc');
+                    return this.filterAndSort(['statistics', 'civilian_games_count'], ['cityNegativeActionsRate'], 30, 'asc', true);
+                },
+                playersByActiveAverageSurvivedDays: function() {
+                    return this.filterAndSort(['statistics', 'games_count_active'], ['activeAverageDaysSurvived'], 10, 'desc', true);
                 },
                 playersByMafiaAverageSurvivedDays: function() {
-                    return this.filterAndSort(['statistics', 'games_count_mafia'], ['mafiaAverageDaysSurvived'], 10);
+                    return this.filterAndSort(['statistics', 'games_count_mafia'], ['mafiaAverageDaysSurvived'], 10, 'desc', true);
+                },
+                playersByNeutralAverageSurvivedDays: function() {
+                    return this.filterAndSort(['statistics', 'games_count_neutral'], ['neutralAverageDaysSurvived'], 5, 'desc', true);
                 },
                 playersByMaximalWinstreak: function() {
-                    return this.filterAndSort(['gamesCountWoMastered'], ['statistics', 'maximal_winstreak'], 30);
+                    return this.filterAndSort(['gamesCountWoMastered'], ['statistics', 'maximal_winstreak'], 30, 'desc', true);
+                },
+                playersByAchievements: function() {
+                    return this.filterAndSort(['achievements_count'], ['achievements_count'], 3);
                 }
             },
             mounted: function(){
@@ -172,8 +193,11 @@
                     <li class="nav-item" data-tab="winrateNeutral"><a @click="setActiveTab('winrateNeutral');" class="nav-link" :class="activeTab === 'winrateNeutral' ? 'active' : ''">Винрейт (нейтрал)</a></li>
                     <li class="nav-item" data-tab="roleRate"><a @click="setActiveTab('roleRate');" class="nav-link" :class="activeTab === 'roleRate' ? 'active' : ''">Роль</a></li>
                     <li class="nav-item" data-tab="civilianNegative"><a @click="setActiveTab('civilianNegative');" class="nav-link" :class="activeTab === 'civilianNegative' ? 'active' : ''">Подвел на мирном</a></li>
+                    <li class="nav-item" data-tab="activeSurvived"><a @click="setActiveTab('activeSurvived');" class="nav-link" :class="activeTab === 'activeSurvived' ? 'active' : ''">Прожито на активе</a></li>
                     <li class="nav-item" data-tab="mafiaSurvived"><a @click="setActiveTab('mafiaSurvived');" class="nav-link" :class="activeTab === 'mafiaSurvived' ? 'active' : ''">Прожито на мафии</a></li>
+                    <li class="nav-item" data-tab="neutralSurvived"><a @click="setActiveTab('neutralSurvived');" class="nav-link" :class="activeTab === 'neutralSurvived' ? 'active' : ''">Прожито на нейтрале</a></li>
                     <li class="nav-item" data-tab="winstreak"><a @click="setActiveTab('winstreak');" class="nav-link" :class="activeTab === 'winstreak' ? 'active' : ''">Винстрик</a></li>
+                    <li class="nav-item" data-tab="caesar"><a @click="setActiveTab('caesar');" class="nav-link" :class="activeTab === 'caesar' ? 'active' : ''">Ачивок</a></li>
                 </ul>
             </div>
         </div>
@@ -373,6 +397,25 @@
                 </table>
             </div>
 
+            <div class="post" v-show="activeTab === 'activeSurvived'">
+                <table class="table" id="table-activeSurvived">
+                    <thead>
+                        <tr>
+                            <th scope="col">№</th>
+                            <th scope="col">Игрок</th>
+                            <th scope="col">Прожито на активе в среднем (дней)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr v-for="(player, index) in playersFilteredAndSorted">
+                            <td>@{{ index + 1 }}</td>
+                            <td><a :href="player.routeLink">@{{ player.name }}</a></td>
+                            <td>@{{ player.activeAverageDaysSurvived }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
             <div class="post" v-show="activeTab === 'mafiaSurvived'">
                 <table class="table" id="table-mafiaSurvived">
                     <thead>
@@ -392,6 +435,25 @@
                 </table>
             </div>
 
+            <div class="post" v-show="activeTab === 'neutralSurvived'">
+                <table class="table" id="table-neutralSurvived">
+                    <thead>
+                        <tr>
+                            <th scope="col">№</th>
+                            <th scope="col">Игрок</th>
+                            <th scope="col">Прожито на нейтрале в среднем (дней)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr v-for="(player, index) in playersFilteredAndSorted">
+                            <td>@{{ index + 1 }}</td>
+                            <td><a :href="player.routeLink">@{{ player.name }}</a></td>
+                            <td>@{{ player.neutralAverageDaysSurvived }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
             <div class="post" v-show="activeTab === 'winstreak'">
                 <table class="table" id="table-winstreak">
                     <thead>
@@ -406,6 +468,25 @@
                             <td>@{{ index + 1 }}</td>
                             <td><a :href="player.routeLink">@{{ player.name }}</a></td>
                             <td>@{{ player.statistics.maximal_winstreak }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="post" v-show="activeTab === 'caesar'">
+                <table class="table" id="table-caesar">
+                    <thead>
+                        <tr>
+                            <th scope="col">№</th>
+                            <th scope="col">Игрок</th>
+                            <th scope="col">Ачивок</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr v-for="(player, index) in playersFilteredAndSorted">
+                            <td>@{{ index + 1 }}</td>
+                            <td><a :href="player.routeLink">@{{ player.name }}</a></td>
+                            <td>@{{ player.achievements_count }}</td>
                         </tr>
                     </tbody>
                 </table>

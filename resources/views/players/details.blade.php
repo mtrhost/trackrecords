@@ -220,7 +220,11 @@
                                                     @foreach($player->games as $game)
                                                         <tr>
                                                             <td>{{ $game->number }}</td>
-                                                            <td>{{ $game->name }}</td>
+                                                            <td>
+                                                                <a href="{{ route('game.details', $game->id) }}">
+                                                                    {{ $game->name }}
+                                                                </a>
+                                                            </td>
                                                             <td>
                                                                 <a href="{{ route('player.details', $game->master->id) }}" target="_blank">
                                                                     {{ $game->master->name }}
