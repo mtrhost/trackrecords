@@ -33,7 +33,8 @@
                     },
                     "bLengthChange": false,
                     "pageLength": 50,
-                    "ordering": false
+                    "order": [[ 1, "desc" ]]
+                    //"ordering": false
                 });
             },
             created: function(){

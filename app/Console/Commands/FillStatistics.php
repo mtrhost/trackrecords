@@ -99,13 +99,6 @@ class FillStatistics extends Command
                         $alias = $factionsForFilter[$gameRole->faction_id];
                         $playerStatistics->countGameRole($alias, $gameRole);
                         $gameName = $gameRole->game->name;
-                        if($playerStatistics->save())
-                            echo "Статистика игрока $player->name по игре '$gameName' успешно учтена\r\n";
-                        else {
-                            echo "Ошибка при обновлении статистики игрока $player->name по игре '$gameName' \r\n";
-                            DB::rollback();
-                            return false;
-                        }
                         $player->countLastGameDate($gameRole);
                     }
                     if(!empty($player->lastGameMastered))
@@ -117,6 +110,13 @@ class FillStatistics extends Command
                         DB::rollback();
                         return false;
                     }
+                }
+                if($playerStatistics->save())
+                    echo "Статистика игрока $player->name по игре '$gameName' успешно учтена\r\n";
+                else {
+                    echo "Ошибка при обновлении статистики игрока $player->name по игре '$gameName' \r\n";
+                    DB::rollback();
+                    return false;
                 }
             }
             return true;

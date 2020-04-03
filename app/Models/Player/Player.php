@@ -26,12 +26,13 @@ class Player extends Model
     ];
 
     const GAMES_COUNT_FOR_STATISTICS_APPEARANCE = 20;
-    const MONTHS_TO_COUNT_AS_INACTIVE = 3;
+    const MONTHS_TO_COUNT_AS_INACTIVE = 6;
     const WINRATE_COLORS = [
         'bad' => '#b00b13',
         'average' => '#4e90ec',
         'good' => '#D7B740',
-        'inactive' => '#D3D3D3'
+        'inactive' => '#D3D3D3',
+        'lowGames' => '#5F9EA0'
     ];
 
     protected $appends = ['profileImage'];
@@ -151,7 +152,7 @@ class Player extends Model
 
 
         $this->getFactionsWinrateStatistics(FactionGroup::get()->toArray(), $accuracy);
-        $this->winrate = round(
+        $this->winrate = $this->statistics->games_count == 0 ? 0 : round(
             ($this->statistics->wins_count / $this->statistics->games_count) * 100, $accuracy
         );
         $this->getWinrateColor();
@@ -163,6 +164,8 @@ class Player extends Model
     {
         if(!$this->is_active) {
             $this->winrate_color = self::WINRATE_COLORS['inactive'];
+        } else if ($this->statistics->games_count < 20) {
+            $this->winrate_color = self::WINRATE_COLORS['lowGames'];
         } else {
             if($this->winrate < 35) {
                 $this->winrate_color = self::WINRATE_COLORS['bad'];
@@ -380,7 +383,7 @@ class Player extends Model
         }
         if($this->id === 183) {
             if(!$this->achievements()->syncWithoutDetaching($achievements->filter(function($value){ 
-                return in_array($value->alias, ['civilian2017']); })->pluck('id')->toArray())
+                return in_array($value->alias, ['civilian2017', 'active2018']); })->pluck('id')->toArray())
             )
                 return false;
         }
@@ -392,7 +395,49 @@ class Player extends Model
         }
         if($this->id === 212) {
             if(!$this->achievements()->syncWithoutDetaching($achievements->filter(function($value){ 
-                return in_array($value->alias, ['mindgames']); })->pluck('id')->toArray())
+                return in_array($value->alias, ['mindgames', 'neutral2018']); })->pluck('id')->toArray())
+            )
+                return false;
+        }
+        if($this->id === 254) {
+            if(!$this->achievements()->syncWithoutDetaching($achievements->filter(function($value){ 
+                return in_array($value->alias, ['civilian2018']); })->pluck('id')->toArray())
+            )
+                return false;
+        }
+        if($this->id === 263) {
+            if(!$this->achievements()->syncWithoutDetaching($achievements->filter(function($value){ 
+                return in_array($value->alias, ['active2018']); })->pluck('id')->toArray())
+            )
+                return false;
+        }
+        if($this->id === 278) {
+            if(!$this->achievements()->syncWithoutDetaching($achievements->filter(function($value){ 
+                return in_array($value->alias, ['mafia2018']); })->pluck('id')->toArray())
+            )
+                return false;
+        }
+        if($this->id === 252) {
+            if(!$this->achievements()->syncWithoutDetaching($achievements->filter(function($value){ 
+                return in_array($value->alias, ['neutral2018', 'civilian2019']); })->pluck('id')->toArray())
+            )
+                return false;
+        }
+        if($this->id === 16) {
+            if(!$this->achievements()->syncWithoutDetaching($achievements->filter(function($value){ 
+                return in_array($value->alias, ['civilian2019', 'active2019']); })->pluck('id')->toArray())
+            )
+                return false;
+        }
+        if($this->id === 259) {
+            if(!$this->achievements()->syncWithoutDetaching($achievements->filter(function($value){ 
+                return in_array($value->alias, ['mafia2019']); })->pluck('id')->toArray())
+            )
+                return false;
+        }
+        if($this->id === 106) {
+            if(!$this->achievements()->syncWithoutDetaching($achievements->filter(function($value){ 
+                return in_array($value->alias, ['neutral2019']); })->pluck('id')->toArray())
             )
                 return false;
         }

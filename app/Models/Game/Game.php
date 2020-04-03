@@ -75,8 +75,12 @@ class Game extends Model
 
     public function getStatusString()
     {
-        if($this->roles->isEmpty() || !empty($this->status))
+        if($this->roles->isEmpty())
             return false;
+
+        if(!empty($this->status)) {
+            return $this->statusString = '<span class="failed-game">' . $this->status . '</span>';
+        }
         
         $statusString = '';
         $role = $this->roles->first();

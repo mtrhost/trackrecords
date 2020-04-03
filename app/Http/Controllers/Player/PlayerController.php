@@ -71,7 +71,7 @@ class PlayerController extends Controller
         ])
         ->withCount(['gamesMastered'])
         ->findOrFail($id);
-        //$player->updatePlayerAvatar();
+        $player->updatePlayerAvatar();
         $player->parseProfile();
         $player->last_game = Carbon::parse($player->last_game)->toDateString();
         $player->getWinrate();
