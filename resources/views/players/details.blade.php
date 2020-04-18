@@ -18,7 +18,8 @@
                 totalWinsCount: 0,
                 totalLosesCount: 0,
                 civilianNegativeActionsCount: 0,
-                civilianGamesCount: 0
+                civilianGamesCount: 0,
+                table: ''
             },
             methods: {
                 isActive: function (menuItem) {
@@ -75,13 +76,40 @@
                 bar.animate(this.player.winrate / 100, 1.0);  // Number from 0.0 to 1.0
 
                 Vue.nextTick(function () {
-                    $("#GamesTable").DataTable({
+                    this.table = $("#GamesTable").DataTable({
                         "language": {
                             "url": "//cdn.datatables.net/plug-ins/1.10.20/i18n/Russian.json"
                         },
                         "bLengthChange": false,
                         "pageLength": 25,
-                        "order": [[ 0, 'desc' ]]
+                        columnDefs: [
+                            { targets: [0, 1, 2, 3, 4], visible: true},
+                            { targets: '_all', visible: false },
+                            
+                            { width: "40%", targets: [5] }
+                        ],
+                        responsive: true,
+                        "order": [[ 0, 'desc' ]],
+                        initComplete: function () {
+                            this.api().columns([5]).every(function () {
+                                var column = this;
+                                var select = $('<select class="form-control" style="width:150px; display:inline-block;"><option value=""></option></select>')
+                                    .appendTo( $('#GamesTable_filter') )
+                                    .on( 'change', function () {
+                                        var val = $.fn.dataTable.util.escapeRegex(
+                                            $(this).val()
+                                        );
+                
+                                        column
+                                            .search( val ? '^'+val+'$' : '', true, false )
+                                            .draw();
+                                    } );
+                
+                                column.data().unique().sort().each( function ( d, j ) {
+                                    select.append( '<option value="'+d+'">'+d+'</option>' )
+                                } );
+                            } );
+                        }
                     });
                 })
             },
@@ -95,7 +123,34 @@
                                 },
                                 "bLengthChange": false,
                                 "pageLength": 25,
-                                "order": [[ 0, 'desc' ]]
+                                responsive: true,
+                                columnDefs: [
+                                    { targets: [0, 1, 2, 3, 4], visible: true},
+                                    { targets: '_all', visible: false },
+                                    
+                                    { width: "40%", targets: [5] }
+                                ],
+                                "order": [[ 0, 'desc' ]],
+                                initComplete: function () {
+                                    this.api().columns([5]).every(function () {
+                                        var column = this;
+                                        var select = $('<select><option value=""></option></select>')
+                                            .appendTo( $(column.footer()).empty() )
+                                            .on( 'change', function () {
+                                                var val = $.fn.dataTable.util.escapeRegex(
+                                                    $(this).val()
+                                                );
+                        
+                                                column
+                                                    .search( val ? '^'+val+'$' : '', true, false )
+                                                    .draw();
+                                            } );
+                        
+                                        column.data().unique().sort().each( function ( d, j ) {
+                                            select.append( '<option value="'+d+'">'+d+'</option>' )
+                                        } );
+                                    } );
+                                }
                             });
                         })
                     }
@@ -197,9 +252,9 @@
             {{-- Секция игр --}}
             <template v-if="isActive('games')">
                 <div class="row">
+                    
                     <div class="col-lg-12">
                         <div class="card custom-card table-responsive">
-
                             <div class="card-block p-t-0">
                                 <div id="DataTables_Table_0_wrapper" class="dataTables_wrapper dt-bootstrap4 no-footer">
                                     <div class="row">
@@ -207,6 +262,14 @@
                                         <div class="col-sm-12 col-md-6"></div>
                                     </div>
                                     <div class="row">
+                                        <div class="form-group mx-sm-3 mb-2">
+                                            <select class="form-control">
+                                                <option>Мирный житель</option>
+                                                <option>Актив мж</option>
+                                                <option>Мафия</option>
+                                                <option>Нейтрал</option>
+                                            </select>
+                                        </div>
                                         <div class="col-sm-12">
                                             <table class="players-table latest-matches table dataTable no-footer" id="GamesTable" role="grid">
                                                 <thead>
@@ -232,6 +295,7 @@
                                                             </td>
                                                             <td>{!! $game->roleString !!}</td>
                                                             <td>{!! $game->statusString !!}</td>
+                                                            <td>{{ $game->roles->first()->faction->group->title }}</td>
                                                         </tr>
                                                     @endforeach
                                                 </tbody>
