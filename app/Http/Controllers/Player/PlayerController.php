@@ -67,10 +67,12 @@ class PlayerController extends Controller
                     }
                 ]);
             },
-            'achievements'
+            'achievements',
+            'partners'
         ])
         ->withCount(['gamesMastered'])
         ->findOrFail($id);
+
         $player->updatePlayerAvatar();
         $player->parseProfile();
         $player->last_game = Carbon::parse($player->last_game)->toDateString();

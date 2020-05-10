@@ -61,6 +61,11 @@ class Player extends Model
     {
         return $this->belongsToMany(Game::class, 'game_roles', 'player_id', 'game_id');
     }
+    public function partners()
+    {
+        return $this->belongsToMany(Player::class, 'player_partners', 'player_one_id', 'player_two_id')
+            ->withPivot('games_count', 'wins_count');
+    }
 
     public function getProfileImageAttribute($value)
     {
@@ -156,6 +161,7 @@ class Player extends Model
             ($this->statistics->wins_count / $this->statistics->games_count) * 100, $accuracy
         );
         $this->getWinrateColor();
+        $this->getPartnersWinrate(15, $accuracy);
 
         return $this->winrate;
     }
@@ -175,6 +181,22 @@ class Player extends Model
                 $this->winrate_color = self::WINRATE_COLORS['average'];
             }
         }
+    }
+
+    public function getPartnersWinrate($gamesFilter = 10, $accuracy = 0)
+    {
+        $this->partners = $this->partners->filter(static function ($partner) use ($gamesFilter) {
+            return $partner->pivot->games_count >= $gamesFilter;
+        })->map(static function ($partner) use ($accuracy) {
+            $partner->games_count = $partner->pivot->games_count;
+            $partner->wins_count = $partner->pivot->wins_count;
+            unset($partner->pivot);
+            $partner->winrate = round(
+                (IntVal($partner->wins_count) / IntVal($partner->games_count) * 100), $accuracy
+            );
+
+            return $partner;
+        })->sortByDesc('winrate')->values();
     }
 
     public function getFactionsWinrateStatistics($factionGroups, $accuracy = 0)

@@ -7,6 +7,7 @@ use App\FactionGroup;
 use App\Player;
 use App\PlayerStatistics;
 use App\Faction;
+use App\Services\PlayerPartnerService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
@@ -93,12 +94,13 @@ class FillStatistics extends Command
             }
             foreach($players as &$player) {
                 $playerStatistics = new PlayerStatistics();
+                $partnerService = new PlayerPartnerService();
                 $playerStatistics->player_id = $player->id;
                 if(isset($player->gameRoles)) {
                     foreach($player->gameRoles as $gameRole) {
                         $alias = $factionsForFilter[$gameRole->faction_id];
                         $playerStatistics->countGameRole($alias, $gameRole);
-                        $gameName = $gameRole->game->name;
+                        $partnerService->countGameRole($player, $gameRole);
                         $player->countLastGameDate($gameRole);
                     }
                     if(!empty($player->lastGameMastered))
@@ -112,12 +114,20 @@ class FillStatistics extends Command
                     }
                 }
                 if($playerStatistics->save())
-                    echo "Статистика игрока $player->name по игре '$gameName' успешно учтена\r\n";
+                    echo "Статистика игрока $player->name успешно учтена\r\n";
                 else {
-                    echo "Ошибка при обновлении статистики игрока $player->name по игре '$gameName' \r\n";
+                    echo "Ошибка при обновлении статистики игрока $player->name\r\n";
                     DB::rollback();
                     return false;
                 }
+                if($partnerService->saveFromPartners())
+                    echo "Данные по напарникам игрока $player->name успешно учтены\r\n";
+                else {
+                    echo "Ошибка при обновлении данных по напарникам игрока $player->name\r\n";
+                    DB::rollback();
+                    return false;
+                }
+                unset($partnerService);
             }
             return true;
         });

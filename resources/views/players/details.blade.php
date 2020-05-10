@@ -154,6 +154,19 @@
                             });
                         })
                     }
+                    if (newValue == 'partners') {
+                        Vue.nextTick(function () {
+                            $("#PartnersTable").DataTable({
+                                "language": {
+                                    "url": "//cdn.datatables.net/plug-ins/1.10.20/i18n/Russian.json"
+                                },
+                                "bLengthChange": false,
+                                "pageLength": 15,
+                                responsive: true,
+                                "order": [[ 0, 'asc' ]]
+                            });
+                        })
+                    }
                 }
             },
         });
@@ -239,6 +252,9 @@
                             <a class="nav-link" :class="{ active:isActive('games') }" data-toggle="tab" @click="setActive('games')">Игры</a>
                         </li>
                         <li class="nav-item">
+                            <a class="nav-link" :class="{ active:isActive('partners') }" data-toggle="tab" @click="setActive('partners')">Напарники</a>
+                        </li>
+                        <li class="nav-item">
                             <a class="nav-link" :class="{ active:isActive('achievements') }" data-toggle="tab" @click="setActive('achievements')">Ачивки</a>
                         </li>
                     </ul>
@@ -262,14 +278,6 @@
                                         <div class="col-sm-12 col-md-6"></div>
                                     </div>
                                     <div class="row">
-                                        <div class="form-group mx-sm-3 mb-2">
-                                            <select class="form-control">
-                                                <option>Мирный житель</option>
-                                                <option>Актив мж</option>
-                                                <option>Мафия</option>
-                                                <option>Нейтрал</option>
-                                            </select>
-                                        </div>
                                         <div class="col-sm-12">
                                             <table class="players-table latest-matches table dataTable no-footer" id="GamesTable" role="grid">
                                                 <thead>
@@ -296,6 +304,61 @@
                                                             <td>{!! $game->roleString !!}</td>
                                                             <td>{!! $game->statusString !!}</td>
                                                             <td>{{ $game->roles->first()->faction->group->title }}</td>
+                                                        </tr>
+                                                    @endforeach
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-sm-12 col-md-7">
+                                            <div class="dataTables_paginate paging_numbers" id="DataTables_Table_0_paginate">
+                                                <ul class="pagination"></ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </template>
+
+            {{-- Секция напарников --}}
+            <template v-if="isActive('partners')">
+                <div class="row">
+                    
+                    <div class="col-lg-12">
+                        <div class="card custom-card table-responsive">
+                            <div class="card-block p-t-0">
+                                <div id="DataTables_Table_0_wrapper" class="dataTables_wrapper dt-bootstrap4 no-footer">
+                                    <div class="row">
+                                        <div class="col-sm-12 col-md-6"></div>
+                                        <div class="col-sm-12 col-md-6"></div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-sm-12">
+                                            <table class="partners-table latest-matches table dataTable no-footer" id="PartnersTable" role="grid">
+                                                <thead>
+                                                    <th>№</th>
+                                                    <th>Имя</th>
+                                                    <th>Игр вместе</th>
+                                                    <th>Побед вместе</th>
+                                                    <th>Винрейт</th>
+                                                </thead>
+                                                <tbody>
+                                                    @foreach($player->partners as $key => $partner)
+                                                        <tr>
+                                                            <td>{{ $key + 1 }}</td>
+                                                            <td>
+                                                                <a href="{{ route('player.details', $partner->id) }}">
+                                                                    {{ $partner->name }}
+                                                                </a>
+                                                            </td>
+                                                            <td>{{ $partner->games_count }}</td>
+                                                            <td>{{ $partner->wins_count }}</td>
+                                                            <td>{{ $partner->winrate }}</td>
                                                         </tr>
                                                     @endforeach
                                                 </tbody>
