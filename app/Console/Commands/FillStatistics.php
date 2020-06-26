@@ -6,6 +6,7 @@ use Illuminate\Console\Command;
 use App\FactionGroup;
 use App\Player;
 use App\PlayerStatistics;
+use App\Models\Player\PlayerPartner;
 use App\Faction;
 use App\Services\PlayerPartnerService;
 use Carbon\Carbon;
@@ -18,7 +19,7 @@ class FillStatistics extends Command
      *
      * @var string
      */
-    protected $signature = 'statistics:fill';
+    protected $signature = 'statistics:fill {--partners}';
 
     /**
      * The console command description.
@@ -45,6 +46,7 @@ class FillStatistics extends Command
     public function handle()
     {
         exec('chcp 65001');
+		$calcPartners = $this->option('partners');
         $players = Player::select('id', 'name', 'last_game')
             ->with([
                 'gameRoles' => function($q){
@@ -76,7 +78,7 @@ class FillStatistics extends Command
             ])
             ->get();
 
-        $transaction = DB::transaction(function () use($players) {
+        $transaction = DB::transaction(function () use($players, $calcPartners) {
             $factions = Faction::select('id', 'group_id')
                 ->with([
                     'group' => function($q){
@@ -92,6 +94,12 @@ class FillStatistics extends Command
                 DB::rollback();
                 return false;
             }
+			if ($calcPartners) {
+				if(!PlayerPartner::query()->truncate()) {
+					DB::rollback();
+					return false;
+				}
+			}
             foreach($players as &$player) {
                 $playerStatistics = new PlayerStatistics();
                 $partnerService = new PlayerPartnerService();
@@ -100,7 +108,9 @@ class FillStatistics extends Command
                     foreach($player->gameRoles as $gameRole) {
                         $alias = $factionsForFilter[$gameRole->faction_id];
                         $playerStatistics->countGameRole($alias, $gameRole);
-                        $partnerService->countGameRole($player, $gameRole);
+						if ($calcPartners) {
+							$partnerService->countGameRole($player, $gameRole);
+						}
                         $player->countLastGameDate($gameRole);
                     }
                     if(!empty($player->lastGameMastered))
@@ -120,13 +130,15 @@ class FillStatistics extends Command
                     DB::rollback();
                     return false;
                 }
-                if($partnerService->saveFromPartners())
-                    echo "Данные по напарникам игрока $player->name успешно учтены\r\n";
-                else {
-                    echo "Ошибка при обновлении данных по напарникам игрока $player->name\r\n";
-                    DB::rollback();
-                    return false;
-                }
+				if ($calcPartners) {
+					if($partnerService->saveFromPartners())
+						echo "Данные по напарникам игрока $player->name успешно учтены\r\n";
+					else {
+						echo "Ошибка при обновлении данных по напарникам игрока $player->name\r\n";
+						DB::rollback();
+						return false;
+					}
+				}
                 unset($partnerService);
             }
             return true;

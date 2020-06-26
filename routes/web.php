@@ -68,9 +68,11 @@ Route::group(['prefix' => 'players'], function () {
 
 Route::group(['prefix' => 'games'], function () {
     Route::get('/', 'GameController@index')->name('game.index');
+	Route::get('votes', 'GameController@votes')->name('game.votes');
     Route::get('{id}', 'GameController@details')->name('game.details');
     Route::post('list', 'GameController@list')->name('game.list');
     Route::post('show', 'GameController@show')->name('game.show');
+    
 });
 
 Route::group(['prefix' => 'settings'], function () {

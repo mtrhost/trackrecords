@@ -32,6 +32,14 @@ class PlayerPartnerService
             $row = $this->partners->filter(static function ($partner) use ($player, $two) {
                 return $partner->player_one_id === $player->id && $partner->player_two_id === $two->player->id;
             });
+			$sameFaction = false;
+			if (
+				($gameRole->faction_id === 1 && $two->faction_id === 2)
+				|| ($gameRole->faction_id === 2 && $two->faction_id === 1)
+				|| ($gameRole->faction_id === $two->faction_id)
+            ) {
+                $sameFaction = true;
+            }
             $win = false;
             if (
                 in_array($gameRole->faction_id, $winners) && in_array($two->faction_id, $winners)
@@ -42,13 +50,15 @@ class PlayerPartnerService
                 $partner = new stdClass();
                 $partner->player_one_id = $player->id;
                 $partner->player_two_id = $two->player->id;
-                $partner->games_count = 1;
+                $partner->games_count = $sameFaction === true ? 1 : 0;
                 $partner->wins_count = $win === true ? 1 : 0;
                 $this->partners->add($partner);
             } else {
-                $this->partners->map(static function($partner) use ($win, $player, $two) {
+                $this->partners->map(static function($partner) use ($win, $sameFaction, $player, $two) {
                     if ($partner->player_one_id === $player->id && $partner->player_two_id === $two->player->id) {
-                        $partner->games_count += 1;
+						if ($sameFaction) {
+							$partner->games_count += 1;
+						}
                         if ($win) {
                             $partner->wins_count += 1;
                         }

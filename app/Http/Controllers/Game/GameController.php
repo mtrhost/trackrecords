@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Game;
+use App\Repositories\Interfaces\PDRepositoryInterface;
 
 class GameController extends Controller
 {
@@ -200,5 +201,11 @@ class GameController extends Controller
         }
         
         return response()->json($game);
+    }
+	
+	public function votes()
+    {
+        dd(app(PDRepositoryInterface::class)->parseVotes());
+        return view('games/votes');
     }
 }

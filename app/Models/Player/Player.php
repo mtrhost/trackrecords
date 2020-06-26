@@ -2,16 +2,13 @@
 
 namespace App;
 
+use App\Repositories\PDRepository;
 use Illuminate\Database\Eloquent\Model;
 use Intervention\Image\Facades\Image;
 use Carbon\Carbon;
 
-use App\Traits\PDParser;
-
 class Player extends Model
 {
-    use PDParser;
-
     protected $fillable = [
         'name', 'profile', 'last_game', 'last_profile_parse_date'
     ];
@@ -77,21 +74,21 @@ class Player extends Model
 
     public function parseProfile()
     {
-        $profileData = PDParser::parseProfileData($this->profile);
+        $profileData = app(PDRepository::class)->parseProfileData($this->profile);
         return $this->last_active = isset($profileData['lastActive']) ? $profileData['lastActive'] : null;
     }
 
     public function updatePlayerAvatar()
     {
         if(is_null($this->last_profile_parse_date) || Carbon::now()->subDays(3)->gt($this->last_profile_parse_date)) {
-            $avatar = PDParser::parseProfileAvatar($this->profile);
+            $avatar = app(PDRepository::class)->parseProfileAvatar($this->profile);
             if($avatar) {
                 $image = Image::make($avatar);
                 //$format = preg_replace('/(.*\.)(.*)(\?.*)/', '$2', $avatar);
                 $publicPath = \Storage::disk('public');
                 $folderPath = 'players/' . $this->id . '/';
                 if (!file_exists($publicPath->path($folderPath))) {
-                    mkdir($publicPath->path($folderPath), 0676, true);
+                    mkdir($publicPath->path($folderPath), 0755, true);
                 }
                 $imageName = 'profileImage.png';
                 $absolutePath = $publicPath->path($folderPath . $imageName);
@@ -117,7 +114,7 @@ class Player extends Model
 
     public function isActive()
     {
-        $lastGame = Game::select('id', 'date')->latest()->first();
+        $lastGame = Game::select('id', 'date')->orderByDesc('number')->first();
         if(is_null($this->last_game) || Carbon::parse($lastGame->date)->subMonths(self::MONTHS_TO_COUNT_AS_INACTIVE)->gt($this->last_game))
             return false;
 
