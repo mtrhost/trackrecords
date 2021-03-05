@@ -23,7 +23,9 @@ class PlayerController extends Controller
             ->groupBy('last_game', 'name', 'id', 'profile')
             //->orderByRaw("last_game DESC NULLS LAST, name ASC")
             ->orderByRaw("last_game DESC, name ASC")
-            ->get();
+            ->get()->each(function(&$value){
+                $value->isActive = $value->isActive();
+            });
             
         return view('players/list', compact('players'));
     }

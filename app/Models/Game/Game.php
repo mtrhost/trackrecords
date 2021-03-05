@@ -64,6 +64,14 @@ class Game extends Model
 
         return $this->winnersString = implode(',', $temp);
     }
+	
+	public function setWinnerFields()
+    {
+        $this->isCityWin = in_array(FactionGroup::where('alias', 'no-role')->first()->id, $this->winners->pluck('faction.group.id')->toArray());
+        $this->isMafiaWin = in_array(FactionGroup::where('alias', 'mafia')->first()->id, $this->winners->pluck('faction.group.id')->toArray());
+        $this->isNeutralWin = in_array(FactionGroup::where('alias', 'neutral')->first()->id, $this->winners->pluck('faction.group.id')->toArray());
+        $this->isFailed = !empty($this->status);;
+    }
 
     public function getRoleString()
     {

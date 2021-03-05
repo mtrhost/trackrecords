@@ -34,6 +34,7 @@ class GameController extends Controller
         $games->each(function(&$value) {
             $value->info = ['name' => $value->name, 'id' => $value->id];
             $value->getWinnersString();
+            $value->setWinnerFields();
         });
 
         return view('games/list', compact('games'));

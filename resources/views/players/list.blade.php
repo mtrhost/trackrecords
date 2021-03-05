@@ -52,6 +52,16 @@
                 Список игроков
             </h1>
         </div>
+		<div class="card-header container">
+			<div class="row">
+				<div class="col-sm">
+					Количество игроков: {{ $players->count() }}
+				</div>
+				<div class="col-sm">
+					Из них активных: {{ $players->filter(static function ($player) { return $player->isActive(); })->count() }}
+				</div>
+			</div>
+        </div>
         <div class="card-block data-block table-responsive" id="players">
             <div class="row">
                 <div class="col-sm-12">

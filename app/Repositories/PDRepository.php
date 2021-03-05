@@ -24,7 +24,7 @@ class PDRepository implements PDRepositoryInterface
 		if (empty($profileLink)) {
 			return false;
 		}
-        $response = $this->client->get($profileLink);
+        $response = $this->client->get($profileLink, ['http_errors' => false]);
         if($response->getStatusCode() !== 200) {
             return false;
         }
@@ -45,7 +45,7 @@ class PDRepository implements PDRepositoryInterface
 		if (empty($profileLink)) {
 			return false;
 		}
-        $response = $this->client->get($profileLink);
+        $response = $this->client->get($profileLink, ['http_errors' => false]);
         if($response->getStatusCode() !== 200) {
             return false;
         }

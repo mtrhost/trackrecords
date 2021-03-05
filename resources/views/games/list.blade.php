@@ -40,6 +40,25 @@
                 Список игр
             </h1>
         </div>
+		<div class="card-header container">
+			<div class="row">
+				<div class="col-sm">
+					Количество игр: {{ $games->count() }}
+				</div>
+				<div class="col-sm">
+					Побед города: {{ $games->filter(static function ($game) { return $game->isCityWin; })->count() }}
+				</div>
+				<div class="col-sm">
+					Побед мафии: {{ $games->filter(static function ($game) { return $game->isMafiaWin; })->count() }}
+				</div>
+				<div class="col-sm">
+					Побед нейтралов: {{ $games->filter(static function ($game) { return $game->isNeutralWin; })->count() }}
+				</div>
+				<div class="col-sm">
+					Фейледы (и прочее): {{ $games->filter(static function ($game) { return $game->isFailed; })->count() }}
+				</div>
+			</div>
+        </div>
         <div class="card-block table-responsive" id="players">
             <div class="row">
                 <div class="col-lg-12">
