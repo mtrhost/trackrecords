@@ -1,13 +1,12 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Player;
 
-use Illuminate\Http\Request;
-use App\Player;
-use App\Faction;
-use App\FactionGroup;
+use App\Http\Controllers\Controller;
+use App\Models\Faction\Faction;
+use App\Models\Player\Player;
 use Carbon\Carbon;
-use App\PlayerStatistics;
+use Illuminate\Http\Request;
 
 class PlayerController extends Controller
 {
@@ -23,7 +22,9 @@ class PlayerController extends Controller
             ->groupBy('last_game', 'name', 'id', 'profile')
             //->orderByRaw("last_game DESC NULLS LAST, name ASC")
             ->orderByRaw("last_game DESC, name ASC")
-            ->get();
+            ->get()->each(function(&$value){
+                $value->isActive = $value->isActive();
+            });
             
         return view('players/list', compact('players'));
     }
@@ -67,10 +68,12 @@ class PlayerController extends Controller
                     }
                 ]);
             },
-            'achievements'
+            'achievements',
+            'partners'
         ])
         ->withCount(['gamesMastered'])
         ->findOrFail($id);
+
         //$player->updatePlayerAvatar();
         $player->parseProfile();
         $player->last_game = Carbon::parse($player->last_game)->toDateString();

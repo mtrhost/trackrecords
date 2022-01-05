@@ -1,17 +1,18 @@
 <?php
 
-namespace App;
+namespace App\Models\Player;
 
+use App\Models\Achievement\Achievement;
+use App\Models\Faction\FactionGroup;
+use App\Models\Game\Game;
+use App\Models\Game\GameRole;
+use App\Repositories\PDRepository;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Intervention\Image\Facades\Image;
-use Carbon\Carbon;
-
-use App\Traits\PDParser;
 
 class Player extends Model
 {
-    use PDParser;
-
     protected $fillable = [
         'name', 'profile', 'last_game', 'last_profile_parse_date'
     ];
@@ -60,6 +61,11 @@ class Player extends Model
     {
         return $this->belongsToMany(Game::class, 'game_roles', 'player_id', 'game_id');
     }
+    public function partners()
+    {
+        return $this->belongsToMany(Player::class, 'player_partners', 'player_one_id', 'player_two_id')
+            ->withPivot('games_count', 'wins_count');
+    }
 
     public function getProfileImageAttribute($value)
     {
@@ -71,21 +77,21 @@ class Player extends Model
 
     public function parseProfile()
     {
-        $profileData = PDParser::parseProfileData($this->profile);
+        $profileData = app(PDRepository::class)->parseProfileData($this->profile);
         return $this->last_active = isset($profileData['lastActive']) ? $profileData['lastActive'] : null;
     }
 
     public function updatePlayerAvatar()
     {
         if(is_null($this->last_profile_parse_date) || Carbon::now()->subDays(3)->gt($this->last_profile_parse_date)) {
-            $avatar = PDParser::parseProfileAvatar($this->profile);
+            $avatar = app(PDRepository::class)->parseProfileAvatar($this->profile);
             if($avatar) {
                 $image = Image::make($avatar);
                 //$format = preg_replace('/(.*\.)(.*)(\?.*)/', '$2', $avatar);
                 $publicPath = \Storage::disk('public');
                 $folderPath = 'players/' . $this->id . '/';
                 if (!file_exists($publicPath->path($folderPath))) {
-                    mkdir($publicPath->path($folderPath), 0676, true);
+                    mkdir($publicPath->path($folderPath), 0755, true);
                 }
                 $imageName = 'profileImage.png';
                 $absolutePath = $publicPath->path($folderPath . $imageName);
@@ -111,7 +117,7 @@ class Player extends Model
 
     public function isActive()
     {
-        $lastGame = Game::select('id', 'date')->latest()->first();
+        $lastGame = Game::select('id', 'date')->orderByDesc('number')->first();
         if(is_null($this->last_game) || Carbon::parse($lastGame->date)->subMonths(self::MONTHS_TO_COUNT_AS_INACTIVE)->gt($this->last_game))
             return false;
 
@@ -151,10 +157,11 @@ class Player extends Model
 
 
         $this->getFactionsWinrateStatistics(FactionGroup::get()->toArray(), $accuracy);
-        $this->winrate = round(
+        $this->winrate = $this->statistics->games_count === 0 ? 0 : round(
             ($this->statistics->wins_count / $this->statistics->games_count) * 100, $accuracy
         );
         $this->getWinrateColor();
+        $this->getPartnersWinrate(15, $accuracy);
 
         return $this->winrate;
     }
@@ -172,6 +179,22 @@ class Player extends Model
                 $this->winrate_color = self::WINRATE_COLORS['average'];
             }
         }
+    }
+
+    public function getPartnersWinrate($gamesFilter = 10, $accuracy = 0)
+    {
+        $this->partners = $this->partners->filter(static function ($partner) use ($gamesFilter) {
+            return $partner->pivot->games_count >= $gamesFilter;
+        })->map(static function ($partner) use ($accuracy) {
+            $partner->games_count = $partner->pivot->games_count;
+            $partner->wins_count = $partner->pivot->wins_count;
+            unset($partner->pivot);
+            $partner->winrate = round(
+                (IntVal($partner->wins_count) / IntVal($partner->games_count) * 100), $accuracy
+            );
+
+            return $partner;
+        })->sortByDesc('winrate')->values();
     }
 
     public function getFactionsWinrateStatistics($factionGroups, $accuracy = 0)
@@ -350,7 +373,7 @@ class Player extends Model
         }
         if($this->id === 207) {
             if(!$this->achievements()->syncWithoutDetaching($achievements->filter(function($value){ 
-                return in_array($value->alias, ['mafia2015', 'mafia2016']); })->pluck('id')->toArray())
+                return in_array($value->alias, ['mafia2015', 'mafia2016', 'mafia2020']); })->pluck('id')->toArray())
             )
                 return false;
         }
@@ -380,7 +403,7 @@ class Player extends Model
         }
         if($this->id === 183) {
             if(!$this->achievements()->syncWithoutDetaching($achievements->filter(function($value){ 
-                return in_array($value->alias, ['civilian2017']); })->pluck('id')->toArray())
+                return in_array($value->alias, ['civilian2017', 'active2018']); })->pluck('id')->toArray())
             )
                 return false;
         }
@@ -392,7 +415,61 @@ class Player extends Model
         }
         if($this->id === 212) {
             if(!$this->achievements()->syncWithoutDetaching($achievements->filter(function($value){ 
-                return in_array($value->alias, ['mindgames']); })->pluck('id')->toArray())
+                return in_array($value->alias, ['mindgames', 'neutral2018']); })->pluck('id')->toArray())
+            )
+                return false;
+        }
+        if($this->id === 254) {
+            if(!$this->achievements()->syncWithoutDetaching($achievements->filter(function($value){ 
+                return in_array($value->alias, ['civilian2018']); })->pluck('id')->toArray())
+            )
+                return false;
+        }
+        if($this->id === 263) {
+            if(!$this->achievements()->syncWithoutDetaching($achievements->filter(function($value){ 
+                return in_array($value->alias, ['active2018', 'neutral2020']); })->pluck('id')->toArray())
+            )
+                return false;
+        }
+        if($this->id === 278) {
+            if(!$this->achievements()->syncWithoutDetaching($achievements->filter(function($value){ 
+                return in_array($value->alias, ['mafia2018']); })->pluck('id')->toArray())
+            )
+                return false;
+        }
+        if($this->id === 252) {
+            if(!$this->achievements()->syncWithoutDetaching($achievements->filter(function($value){ 
+                return in_array($value->alias, ['neutral2018', 'civilian2019']); })->pluck('id')->toArray())
+            )
+                return false;
+        }
+        if($this->id === 16) {
+            if(!$this->achievements()->syncWithoutDetaching($achievements->filter(function($value){ 
+                return in_array($value->alias, ['civilian2019', 'active2019', 'civilian2020']); })->pluck('id')->toArray())
+            )
+                return false;
+        }
+        if($this->id === 259) {
+            if(!$this->achievements()->syncWithoutDetaching($achievements->filter(function($value){ 
+                return in_array($value->alias, ['mafia2019']); })->pluck('id')->toArray())
+            )
+                return false;
+        }
+        if($this->id === 106) {
+            if(!$this->achievements()->syncWithoutDetaching($achievements->filter(function($value){ 
+                return in_array($value->alias, ['neutral2019']); })->pluck('id')->toArray())
+            )
+                return false;
+        }
+        if($this->id === 261) {
+            if(!$this->achievements()->syncWithoutDetaching($achievements->filter(function($value){ 
+                return in_array($value->alias, ['civilian2020']); })->pluck('id')->toArray())
+            )
+                return false;
+        }
+        if($this->id === 214) {
+            if(!$this->achievements()->syncWithoutDetaching($achievements->filter(function($value){ 
+                return in_array($value->alias, ['active2020']); })->pluck('id')->toArray())
             )
                 return false;
         }

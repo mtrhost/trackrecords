@@ -1,7 +1,8 @@
 <?php
 
-namespace App;
+namespace App\Models\Achievement;
 
+use App\Models\Player\Player;
 use Illuminate\Database\Eloquent\Model;
 
 class Achievement extends Model

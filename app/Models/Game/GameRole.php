@@ -1,7 +1,10 @@
 <?php
 
-namespace App;
+namespace App\Models\Game;
 
+use App\Models\Faction\Faction;
+use App\Models\Player\Player;
+use App\Models\Role\Role;
 use Illuminate\Database\Eloquent\Model;
 
 class GameRole extends Model

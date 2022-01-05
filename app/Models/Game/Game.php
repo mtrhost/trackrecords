@@ -1,9 +1,12 @@
 <?php
 
-namespace App;
+namespace App\Models\Game;
 
-use Illuminate\Database\Eloquent\Model;
+use App\Models\Faction\FactionGroup;
+use App\Models\Player\Player;
+use App\Models\Setting\Setting;
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Artisan;
 
 class Game extends Model
@@ -63,6 +66,14 @@ class Game extends Model
         }
 
         return $this->winnersString = implode(',', $temp);
+    }
+
+    public function setWinnerFields()
+    {
+        $this->isCityWin = in_array(FactionGroup::where('alias', 'no-role')->first()->id, $this->winners->pluck('faction.group.id')->toArray());
+        $this->isMafiaWin = in_array(FactionGroup::where('alias', 'mafia')->first()->id, $this->winners->pluck('faction.group.id')->toArray());
+        $this->isNeutralWin = in_array(FactionGroup::where('alias', 'neutral')->first()->id, $this->winners->pluck('faction.group.id')->toArray());
+        $this->isFailed = !empty($this->status);;
     }
 
     public function getRoleString()

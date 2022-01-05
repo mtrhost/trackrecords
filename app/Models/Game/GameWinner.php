@@ -1,7 +1,8 @@
 <?php
 
-namespace App;
+namespace App\Models\Game;
 
+use App\Models\Faction\Faction;
 use Illuminate\Database\Eloquent\Model;
 
 class GameWinner extends Model

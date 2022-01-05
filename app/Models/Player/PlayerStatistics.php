@@ -1,6 +1,6 @@
 <?php
 
-namespace App;
+namespace App\Models\Player;
 
 use Illuminate\Database\Eloquent\Model;
 

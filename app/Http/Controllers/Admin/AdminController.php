@@ -1,19 +1,20 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Admin;
 
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
-use App\Role;
-use App\Game;
-use App\Player;
-use App\Faction;
+use App\Http\Controllers\Controller;
 use App\Http\Requests\CreatePlayersRequest;
 use App\Http\Requests\CreateSettingRequest;
-use App\Setting;
-use App\GameStatus;
-use App\GameTimeStatus;
 use App\Http\Requests\CreateGameRequest;
+use App\Models\Faction\Faction;
+use App\Models\Game\Game;
+use App\Models\Game\GameStatus;
+use App\Models\Game\GameTimeStatus;
+use App\Models\Player\Player;
+use App\Models\Role\Role;
+use App\Models\Setting\Setting;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class AdminController extends Controller
 {

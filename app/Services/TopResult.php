@@ -2,7 +2,7 @@
 
 namespace App\Services;
 
-use App\Player;
+use App\Models\Player\Player;
 use Illuminate\Support\Str;
 
 class TopResult

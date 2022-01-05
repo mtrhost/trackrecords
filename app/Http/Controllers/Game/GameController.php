@@ -1,9 +1,11 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Game;
 
+use App\Http\Controllers\Controller;
+use App\Models\Game\Game;
+use App\Repositories\Interfaces\PDRepositoryInterface;
 use Illuminate\Http\Request;
-use App\Game;
 
 class GameController extends Controller
 {
@@ -33,6 +35,7 @@ class GameController extends Controller
         $games->each(function(&$value) {
             $value->info = ['name' => $value->name, 'id' => $value->id];
             $value->getWinnersString();
+            $value->setWinnerFields();
         });
 
         return view('games/list', compact('games'));
@@ -200,5 +203,11 @@ class GameController extends Controller
         }
         
         return response()->json($game);
+    }
+	
+	public function votes()
+    {
+        dd(app(PDRepositoryInterface::class)->parseVotes());
+        return view('games/votes');
     }
 }

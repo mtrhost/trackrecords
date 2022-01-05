@@ -1,7 +1,8 @@
 <?php
 
-namespace App;
+namespace App\Models\Player;
 
+use App\Models\Achievement\Achievement;
 use App\Services\TopResult;
 use Illuminate\Database\Eloquent\Model;
 

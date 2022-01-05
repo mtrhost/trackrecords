@@ -1,7 +1,10 @@
 <?php
 
-namespace App;
+namespace App\Models\Setting;
 
+use App\Models\Game\Game;
+use App\Models\Player\Player;
+use App\Models\Role\Role;
 use Illuminate\Database\Eloquent\Model;
 
 class Setting extends Model

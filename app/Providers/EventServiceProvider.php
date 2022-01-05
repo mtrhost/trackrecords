@@ -2,7 +2,8 @@
 
 namespace App\Providers;
 
-use Illuminate\Support\Facades\Event;
+use App\Models\Player\Player;
+use App\Models\Player\PlayerStatistics;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
 
 class EventServiceProvider extends ServiceProvider
@@ -27,6 +28,10 @@ class EventServiceProvider extends ServiceProvider
     {
         parent::boot();
 
-        //
+        Player::created(static function($player)
+		{
+			$statistics = new PlayerStatistics(['player_id' => $player->id]);
+			$statistics->save();
+		});
     }
 }

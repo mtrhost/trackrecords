@@ -92,8 +92,6 @@
                                     <span class="icon-medium icons-add-new-medium"></span>
                                 </a>
                             </div>
-                            @{{ game }}
-                            <textarea class="form-control w-100" placeholder="Код запроса" name="request_json"></textarea>
                             <button type="submit" class="btn btn-primary">Сохранить</button>
                         </div>
                     </form>
@@ -143,11 +141,12 @@
             methods: {
                 saveGame: function(e) {
                     var form = e.target;
-                    if (form.request_json.value !== "") {
-                        var data = form.request_json.value;
-                    } else {
-                        var data = this.game;
-                    }
+                    // if (form.request_json.value !== "") {
+                    //     var data = form.request_json.value;
+                    // } else {
+                    //     var data = this.game;
+                    // }
+                    var data = this.game;
                     this.$http
                         .post(form.action, data)
                         .then(response => {

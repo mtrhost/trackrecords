@@ -1,9 +1,10 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Setting;
 
+use App\Http\Controllers\Controller;
+use App\Models\Setting\Setting;
 use Illuminate\Http\Request;
-use App\Setting;
 
 class SettingController extends Controller
 {

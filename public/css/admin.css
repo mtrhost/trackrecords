@@ -249,6 +249,7 @@
 }
 .dashboard .icons-add-new-medium {
     background-image: url(/static/images/add-image.png);
+    background-repeat: no-repeat;
     filter: invert(30%) grayscale(100%) brightness(70%) contrast(4);
     margin-left: -5px;
 }

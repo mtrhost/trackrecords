@@ -40,7 +40,7 @@ Route::get('/logout', function(){
     return Redirect::to('/');
  });
 
-Route::group(['prefix' => 'admin'], function () {
+Route::group(['prefix' => 'admin', 'namespace' => '\App\Http\Controllers\Admin'], function () {
     Route::get('/', 'AdminController@index')->name('admin.index');
     Route::get('roles/add', 'AdminController@roles')->name('admin.roles');
     Route::post('roles/save', 'AdminController@saveRoles')->name('admin.roles.save');
@@ -56,7 +56,7 @@ Route::group(['prefix' => 'admin'], function () {
     return view('templates.main');
 })->where('vue_capture', '[\/\w\.-]*');*/
 Route::get('/', 'IndexController@index')->name('index');
-Route::group(['prefix' => 'players'], function () {
+Route::group(['prefix' => 'players', 'namespace' => '\App\Http\Controllers\Player'], function () {
     Route::get('/', 'PlayerController@index')->name('player.index');
     Route::get('statistics', 'PlayerController@statistics')->name('player.statistics');
     Route::get('{id}', 'PlayerController@details')->name('player.details');
@@ -66,20 +66,21 @@ Route::group(['prefix' => 'players'], function () {
     Route::post('parse', 'PlayerController@parsePlayerProfile')->name('player.parsePlayerProfile');
 });
 
-Route::group(['prefix' => 'games'], function () {
+Route::group(['prefix' => 'games', 'namespace' => '\App\Http\Controllers\Game'], function () {
     Route::get('/', 'GameController@index')->name('game.index');
+    Route::get('votes', 'GameController@votes')->name('game.votes');
     Route::get('{id}', 'GameController@details')->name('game.details');
     Route::post('list', 'GameController@list')->name('game.list');
     Route::post('show', 'GameController@show')->name('game.show');
 });
 
-Route::group(['prefix' => 'settings'], function () {
+Route::group(['prefix' => 'settings', 'namespace' => '\App\Http\Controllers\Setting'], function () {
     Route::get('/', 'SettingController@index')->name('setting.index');
     Route::get('{id}', 'SettingController@details')->name('setting.details');
     Route::post('list', 'SettingController@list')->name('setting.list');
     Route::post('show', 'SettingController@show')->name('setting.show');
 });
 
-Route::group(['prefix' => 'achievements'], function () {
+Route::group(['prefix' => 'achievements', 'namespace' => '\App\Http\Controllers\Player'], function () {
     Route::get('/', 'AchievementController@index')->name('achievements.index');
 });

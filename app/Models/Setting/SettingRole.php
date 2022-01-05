@@ -1,7 +1,9 @@
 <?php
 
-namespace App;
+namespace App\Models\Setting;
 
+use App\Models\Faction\Faction;
+use App\Models\Role\Role;
 use Illuminate\Database\Eloquent\Model;
 
 class SettingRole extends Model

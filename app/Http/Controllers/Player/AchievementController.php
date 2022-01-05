@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Player;
 
-use Illuminate\Http\Request;
-use App\Achievement;
+use App\Http\Controllers\Controller;
+use App\Models\Achievement\Achievement;
 
 class AchievementController extends Controller
 {

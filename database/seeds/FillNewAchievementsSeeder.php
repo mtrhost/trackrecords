@@ -14,31 +14,135 @@ class FillNewAchievementsSeeder extends Seeder
     public function run()
     {
         DB::transaction(function () {
-            DB::table('achievements')->where('id', '>', 45)->delete();
+            DB::table('achievements')->where('id', '>', 48)->delete();
             $achievements = [
                 [
-                    'name' => 'Ниндзя', 
-                    'alias' => 'ninja', 
-                    'condition' => 'Условие получения - наибольшее среднее время жизни на нейтрале',
-                    'description' => 'Его движения бесшумны, силуэт тоньше катаны, а мысль убить его в головах игроков возникает реже чем съесть пиццу с ананасами',
-                    'image_original' => 'achievement_18.png',
-                    'sort' => 18
+                    'name' => 'Мирный житель 2018', 
+                    'alias' => 'civilian2018', 
+                    'condition' => 'Условие получения - победа в голосовании',
+                    'description' => 'Этот игрок путем народного голосования признан лучшим мирным жителем 2018 года',
+                    'image_original' => 'achievement_mj2018.png',
+                    'sort' => 804
                 ],
                 [
-                    'name' => 'На морозе', 
-                    'alias' => 'coldFeet', 
-                    'condition' => 'Условие получения - наибольшее среднее время жизни на активе мж',
-                    'description' => 'Истинный шериф или деревенский дурачок? Какое то из этих качеств позволяет ему жить и пуляться абилками дольше других',
-                    'image_original' => 'achievement_19.png',
-                    'sort' => 19
+                    'name' => 'Актив мж 2018', 
+                    'alias' => 'active2018', 
+                    'condition' => 'Условие получения - победа в голосовании',
+                    'description' => 'Этот игрок путем народного голосования признан лучшим активом мж 2018 года',
+                    'image_original' => 'achievement_active2018.png',
+                    'sort' => 805
                 ],
                 [
-                    'name' => 'Цезарь', 
-                    'alias' => 'caesar', 
-                    'condition' => 'Условие получения - наибольшее количество ачивок',
-                    'description' => 'Настоящий коллекционер и воплощение Финта, истинный амбидекстр и виртуозный всеборец',
-                    'image_original' => 'achievement_20.png',
-                    'sort' => 20
+                    'name' => 'Мафия 2018', 
+                    'alias' => 'mafia2018', 
+                    'condition' => 'Условие получения - победа в голосовании',
+                    'description' => 'Этот игрок путем народного голосования признан лучшей мафией 2018 года',
+                    'image_original' => 'achievement_mafia2018.png',
+                    'sort' => 806
+                ],
+                [
+                    'name' => 'Маньяк 2018', 
+                    'alias' => 'neutral2018', 
+                    'condition' => 'Условие получения - победа в голосовании',
+                    'description' => 'Этот игрок путем народного голосования признан лучшим маньяком 2018 года',
+                    'image_original' => 'achievement_man2018.png',
+                    'sort' => 807
+                ],
+                [
+                    'name' => 'Мирный житель 2019', 
+                    'alias' => 'civilian2019', 
+                    'condition' => 'Условие получения - победа в голосовании',
+                    'description' => 'Этот игрок путем народного голосования признан лучшим мирным жителем 2019 года',
+                    'image_original' => 'achievement_mj2019.png',
+                    'sort' => 808
+                ],
+                [
+                    'name' => 'Актив мж 2019', 
+                    'alias' => 'active2019', 
+                    'condition' => 'Условие получения - победа в голосовании',
+                    'description' => 'Этот игрок путем народного голосования признан лучшим активом мж 2019 года',
+                    'image_original' => 'achievement_active2019.png',
+                    'sort' => 809
+                ],
+                [
+                    'name' => 'Мафия 2019', 
+                    'alias' => 'mafia2019', 
+                    'condition' => 'Условие получения - победа в голосовании',
+                    'description' => 'Этот игрок путем народного голосования признан лучшей мафией 2019 года',
+                    'image_original' => 'achievement_mafia2019.png',
+                    'sort' => 810
+                ],
+                [
+                    'name' => 'Маньяк 2019', 
+                    'alias' => 'neutral2019', 
+                    'condition' => 'Условие получения - победа в голосовании',
+                    'description' => 'Этот игрок путем народного голосования признан лучшим маньяком 2019 года',
+                    'image_original' => 'achievement_man2019.png',
+                    'sort' => 811
+                ],
+                [
+                    'name' => 'Мирный житель 2020', 
+                    'alias' => 'civilian2020', 
+                    'condition' => 'Условие получения - победа в голосовании',
+                    'description' => 'Этот игрок путем народного голосования признан лучшим мирным жителем 2020 года',
+                    'image_original' => 'achievement_mj2020.png',
+                    'sort' => 812
+                ],
+                [
+                    'name' => 'Актив мж 2020', 
+                    'alias' => 'active2020', 
+                    'condition' => 'Условие получения - победа в голосовании',
+                    'description' => 'Этот игрок путем народного голосования признан лучшим активом мж 2020 года',
+                    'image_original' => 'achievement_active2020.png',
+                    'sort' => 813
+                ],
+                [
+                    'name' => 'Мафия 2020', 
+                    'alias' => 'mafia2020', 
+                    'condition' => 'Условие получения - победа в голосовании',
+                    'description' => 'Этот игрок путем народного голосования признан лучшей мафией 2020 года',
+                    'image_original' => 'achievement_mafia2020.png',
+                    'sort' => 814
+                ],
+                [
+                    'name' => 'Маньяк 2020', 
+                    'alias' => 'neutral2020', 
+                    'condition' => 'Условие получения - победа в голосовании',
+                    'description' => 'Этот игрок путем народного голосования признан лучшим маньяком 2020 года',
+                    'image_original' => 'achievement_man2020.png',
+                    'sort' => 815
+                ],
+                [
+                    'name' => 'Мирный житель 2021', 
+                    'alias' => 'civilian2021', 
+                    'condition' => 'Условие получения - победа в голосовании',
+                    'description' => 'Этот игрок путем народного голосования признан лучшим мирным жителем 2021 года',
+                    'image_original' => 'achievement_mj2021.png',
+                    'sort' => 820
+                ],
+                [
+                    'name' => 'Актив мж 2021', 
+                    'alias' => 'active2021', 
+                    'condition' => 'Условие получения - победа в голосовании',
+                    'description' => 'Этот игрок путем народного голосования признан лучшим активом мж 2021 года',
+                    'image_original' => 'achievement_active2021.png',
+                    'sort' => 821
+                ],
+                [
+                    'name' => 'Мафия 2021', 
+                    'alias' => 'mafia2021', 
+                    'condition' => 'Условие получения - победа в голосовании',
+                    'description' => 'Этот игрок путем народного голосования признан лучшей мафией 2021 года',
+                    'image_original' => 'achievement_mafia2021.png',
+                    'sort' => 822
+                ],
+                [
+                    'name' => 'Маньяк 2021', 
+                    'alias' => 'neutral2021', 
+                    'condition' => 'Условие получения - победа в голосовании',
+                    'description' => 'Этот игрок путем народного голосования признан лучшим маньяком 2021 года',
+                    'image_original' => 'achievement_man2021.png',
+                    'sort' => 823
                 ],
             ];
             foreach ($achievements as $achievement) {

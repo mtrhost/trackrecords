@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Service;
 
-use Illuminate\Http\Request;
-use App\Game;
+use App\Http\Controllers\Controller;
+use App\Models\Game\Game;
+use App\Models\Game\GameWinner;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Carbon;
-use App\GameWinner;
 
 class DatabaseController extends Controller
 {
