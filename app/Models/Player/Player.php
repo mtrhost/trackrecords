@@ -32,8 +32,7 @@ class Player extends Model
         'bad' => '#b00b13',
         'average' => '#4e90ec',
         'good' => '#D7B740',
-        'inactive' => '#D3D3D3',
-        'kek' => 'kek'
+        'inactive' => '#D3D3D3'
     ];
 
     protected $appends = ['profileImage'];
