@@ -3,7 +3,6 @@
 namespace App\Services;
 
 use App\Models\Player\Player;
-use Illuminate\Support\Str;
 
 class TopResult
 {
@@ -34,7 +33,7 @@ class TopResult
     public function __construct()
     {
         $this->samurai = $this->don = $this->trueDetective = $this->king = $this->speeker = $this->lucky = $this->survivor
-            = $this->winstreak = $this->dummy;
+            = $this->winstreak = $this->coldFeet = $this->ninja = $this->dummy;
     }
 
     public function get()

@@ -2,11 +2,13 @@
 
 namespace App\Console\Commands;
 
+use App\Dictionaries\Game\GameStatusDictionary;
 use Illuminate\Console\Command;
 use App\Models\Faction\Faction;
 use App\Models\Player\Player;
+use App\Models\Player\PlayerPartner;
 use App\Models\Player\PlayerStatistics;
-use App\Services\PlayerPartnerService;
+use App\Services\Player\PlayerPartnerService;
 use Illuminate\Support\Facades\DB;
 
 class FillStatistics extends Command
@@ -49,12 +51,12 @@ class FillStatistics extends Command
                 'gameRoles' => function($q){
                     $q->select('id', 'game_id', 'player_id', 'faction_id', 'status_id', 'day', 'time_status_id')
                         ->whereHas('game', function($q){
-                            $q->where('status', '')
-                                ->orWhereNull('status');
+                            $q->where('status', GameStatusDictionary::COMPLETED);
                         })
                         ->with([
                             'game' => function($q) {
                                 $q->select('id', 'date', 'name', 'length')
+                                    ->where('status', GameStatusDictionary::COMPLETED)
                                     ->with([
                                         'winners' => function($q){
                                             $q->select('id', 'game_id', 'faction_id')
@@ -109,9 +111,9 @@ class FillStatistics extends Command
                             $partnerService->countGameRole($player, $gameRole);
                         }
                         $gameName = $gameRole->game->name;
-                        if($playerStatistics->save())
+                        if($playerStatistics->save()) {
                             echo "Статистика игрока $player->name по игре '$gameName' успешно учтена\r\n";
-                        else {
+                        } else {
                             echo "Ошибка при обновлении статистики игрока $player->name по игре '$gameName' \r\n";
                             DB::rollback();
                             return false;
@@ -138,14 +140,23 @@ class FillStatistics extends Command
                     }
                     unset($partnerService);
                 }
+                if($playerStatistics->save()) {
+                    echo "Статистика игрока $player->name успешно учтена\r\n";
+                } else {
+                    echo "Ошибка при обновлении статистики игрока $player->name \r\n";
+                    DB::rollback();
+                    return false;
+                }
             }
             return true;
         });
 
-        if($transaction)
-            echo "Пересчет статистики успешно завершен \r\n";
-        else
-            echo "Пересчет статистики отменен из-за ошибки \r\n";
+        if($transaction) {
+            $this->info("Пересчет статистики успешно завершен");
+        } else {
+            $this->error("Пересчет статистики отменен из-за ошибки");
+        }
+        return 0;
     }
 
 

@@ -3,15 +3,60 @@
 namespace App\Models\Player;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+/**
+ * PlayerStatistics
+ * 
+ * @property int $id
+ * @property int $player_id
+ * @property int $games_count_no_role
+ * @property int $wins_no_role
+ * @property int $games_count_active
+ * @property int $wins_active
+ * @property int $games_count_mafia
+ * @property int $wins_mafia
+ * @property int $games_count_neutral
+ * @property int $wins_neutral
+ * @property int $lightnings_civilian
+ * @property int $lightnings_other
+ * @property int $banished_civilian
+ * @property int $maximal_winstreak
+ * @property int $current_winstreak
+ * @property int $days_survived_no_role
+ * @property int $days_survived_active
+ * @property int $days_survived_mafia
+ * @property int $days_survived_neutral
+ * 
+ * @property-read Player $player
+ * @property-read int $wins_count
+ * @property-read int $games_count
+ * @property-read int $civilian_games_count
+ * @property-read int $lightnings_count
+ * @property-read float $civilian_winrate
+ * @property-read float $role_rate
+ * @property-read float $city_negative_actions_rate
+ * @property-read float $active_average_days_survived
+ * @property-read float $mafia_average_days_survived
+ * @property-read float $neutral_average_days_survived
+ *
+ * @author jcshow
+ * @package App\Models\Player
+ */
 class PlayerStatistics extends Model
 {
+    /**
+     * {@inheritDoc}
+     */
     protected $fillable = [
         'player_id', 'games_count_no_role', 'wins_no_role', 'games_count_active', 'wins_active', 'games_count_mafia', 'wins_mafia',
         'games_count_neutral', 'wins_neutral', 'lightnings_civilian', 'lightnings_other', 'banished_civilian', 'maximal_winstreak',
         'current_winstreak', 'days_survived_no_role', 'days_survived_active', 'days_survived_mafia', 'days_survived_neutral',
     ];
 
+    /**
+     * {@inheritDoc}
+     */
     protected $casts = [
         'player_id' => 'integer',
         'games_count_no_role' => 'integer',
@@ -33,29 +78,62 @@ class PlayerStatistics extends Model
         'days_survived_neutral' => 'integer',
     ];
 
-    public function player()
+    /**
+     * Player
+     * 
+     * @return BelongsTo
+     */
+    public function player(): BelongsTo
     {
         return $this->belongsTo(Player::class, 'player_id', 'id');
     }
 
-    public function getWinsCountAttribute()
+    /**
+     * Wins count
+     * 
+     * @return int
+     */
+    public function getWinsCountAttribute(): int
     {
         return $this->wins_count = $this->wins_no_role + $this->wins_active + $this->wins_mafia + $this->wins_neutral;
     }
-    public function getGamesCountAttribute()
+
+    /**
+     * Games count
+     * 
+     * @return int
+     */
+    public function getGamesCountAttribute(): int
     {
         return $this->games_count = $this->games_count_no_role + $this->games_count_active + $this->games_count_mafia + $this->games_count_neutral;
     }
-    public function getCivilianGamesCountAttribute()
+
+    /**
+     * Civilian games count
+     * 
+     * @return int
+     */
+    public function getCivilianGamesCountAttribute(): int
     {
         return $this->civilian_games_count = $this->games_count_no_role + $this->games_count_active;
     }
 
-    public function getLightningsCount()
+    /**
+     * Lightnings count
+     * 
+     * @return int
+     */
+    public function getLightningsCount(): int
     {
         return $this->lightnings_civilian + $this->lightnings_other;
     }
-    public function getCivilianWinrate($accuracy = 0)
+
+    /**
+     * Civilian winrate
+     * 
+     * @return float
+     */
+    public function getCivilianWinrate($accuracy = 0): float
     {
         if($this->civilian_games_count === 0)
             return 0;
@@ -64,35 +142,65 @@ class PlayerStatistics extends Model
             (((IntVal($this->{'wins_no_role'}) + IntVal($this->wins_active)) / IntVal($this->civilian_games_count)) * 100), $accuracy
         );
     }
-    public function getRoleRate($accuracy = 0)
+
+    /**
+     * Role rate
+     * 
+     * @return float
+     */
+    public function getRoleRate($accuracy = 0): float
     { 
         if($this->games_count === 0)
             return 0;
 
         return round((($this->games_count_active + $this->games_count_mafia + $this->games_count_neutral) / $this->games_count) * 100, $accuracy);
     }
-    public function getCityNegativeActionsRate($accuracy = 0)
+
+    /**
+     * City negative actions rate
+     * 
+     * @return float
+     */
+    public function getCityNegativeActionsRate($accuracy = 0): float
     {
         if($this->civilian_games_count === 0)
             return 0;
 
         return round((($this->lightnings_civilian + $this->banished_civilian) / $this->civilian_games_count) * 100, $accuracy);
     }
-    public function getActiveAverageDaysSurvived($accuracy = 0)
+
+    /**
+     * Active average days survived
+     * 
+     * @return float
+     */
+    public function getActiveAverageDaysSurvived($accuracy = 0): float
     {
         if($this->games_count_active === 0)
             return 0;
 
         return round(($this->days_survived_active / $this->games_count_active), $accuracy);
     }
-    public function getMafiaAverageDaysSurvived($accuracy = 0)
+
+    /**
+     * Mafia average days survived
+     * 
+     * @return float
+     */
+    public function getMafiaAverageDaysSurvived($accuracy = 0): float
     {
         if($this->games_count_mafia === 0)
             return 0;
 
         return round(($this->days_survived_mafia / $this->games_count_mafia), $accuracy);
     }
-    public function getNeutralAverageDaysSurvived($accuracy = 0)
+
+    /**
+     * Neutral average days survived
+     * 
+     * @return float
+     */
+    public function getNeutralAverageDaysSurvived($accuracy = 0): float
     {
         if($this->games_count_neutral === 0)
             return 0;

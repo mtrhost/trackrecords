@@ -6,32 +6,82 @@ use App\Models\Game\Game;
 use App\Models\Player\Player;
 use App\Models\Role\Role;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Collection;
 
+/**
+ * Setting
+ * 
+ * @property int $id
+ * @property string $name
+ * @property int $players_count
+ * @property int $author_id
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * 
+ * @property-read Player $author
+ * @property-read Collection|null $games
+ * @property-read Collection|null $roles
+ * @property-read Collection|null $setting_roles
+ *
+ * @author jcshow
+ * @package App\Models\Setting
+ */
 class Setting extends Model
 {
+    /**
+     * {@inheritDoc}
+     */
     protected $fillable = [
         'name', 'players_count', 'author_id'
     ];
 
+    /**
+     * {@inheritDoc}
+     */
     protected $casts = [
-        'name' => 'string',
         'author_id' => 'integer',
         'players_count' => 'integer'
     ];
 
-    public function author()
+    /**
+     * Setting author
+     * 
+     * @return BelongsTo
+     */
+    public function author(): BelongsTo
     {
         return $this->belongsTo(Player::class, 'author_id', 'id');
     }
-    public function games()
+
+    /**
+     * Games
+     * 
+     * @return HasMany
+     */
+    public function games(): HasMany
     {
         return $this->hasMany(Game::class, 'setting_id', 'id');
     }
-    public function roles()
+
+    /**
+     * Roles
+     * 
+     * @return BelongsToMany
+     */
+    public function roles(): BelongsToMany
     {
         return $this->belongsToMany(Role::class, 'setting_roles', 'setting_id', 'role_id');
     }
-    public function settingRoles()
+
+    /**
+     * Setting roles
+     * 
+     * @return HasMany
+     */
+    public function settingRoles(): HasMany
     {
         return $this->hasMany(SettingRole::class, 'setting_id', 'id');
     }

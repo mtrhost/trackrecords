@@ -2,60 +2,135 @@
 
 namespace App\Models\Game;
 
+use App\Dictionaries\Game\GameStatusDictionary;
 use App\Models\Faction\FactionGroup;
 use App\Models\Player\Player;
 use App\Models\Setting\Setting;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Facades\Artisan;
 
+/**
+ * Game
+ * 
+ * @property int $id
+ * @property int $setting_id
+ * @property int $master_id
+ * @property string $name
+ * @property int $number
+ * @property int $length
+ * @property Carbon|null $date
+ * @property string $link
+ * @property int $status
+ * @property int $players_count
+ * @property int $active_count
+ * @property int $mafia_count
+ * @property int $neutral_count
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * 
+ * @property-read Collection|null $winners
+ * @property-read Player $master
+ * @property-read Setting $setting
+ * @property-read Collection|null $roles
+ * @property-read Collection|null $players
+ *
+ * @author jcshow
+ * @package App\Models\Game
+ */
 class Game extends Model
 {
+    /**
+     * {@inheritDoc}
+     */
     protected $fillable = [
         'setting_id', 'master_id', 'name', 'number', 'length', 'date', 'link', 'status', 'players_count', 'active_count',
         'mafia_count', 'neutral_count'
     ];
 
+    /**
+     * {@inheritDoc}
+     */
     protected $casts = [
         'setting_id' => 'integer',
         'master_id' => 'integer',
-        'name' => 'string',
         'number' => 'integer',
         'length' => 'integer',
-        'link' => 'string',
-        'status' => 'string',
         'players_count' => 'integer',
         'active_count' => 'integer',
         'mafia_count' => 'integer',
         'neutral_count' => 'integer',
+        'status' => 'integer',
     ];
 
-    public function winners()
+    /**
+     * Game winners
+     * 
+     * @return HasMany
+     */
+    public function winners(): HasMany
     {
         return $this->hasMany(GameWinner::class, 'game_id');
     }
-    public function master()
+
+    /**
+     * Game master
+     * 
+     * @return BelongsTo
+     */
+    public function master(): BelongsTo
     {
         return $this->belongsTo(Player::class, 'master_id', 'id');
     }
-    public function setting()
+
+    /**
+     * Setting
+     * 
+     * @return BelongsTo
+     */
+    public function setting(): BelongsTo
     {
         return $this->belongsTo(Setting::class, 'setting_id', 'id');
     }
-    public function roles()
+
+    /**
+     * Roles
+     * 
+     * @return HasMany
+     */
+    public function roles(): HasMany
     {
         return $this->hasMany(GameRole::class, 'game_id', 'id');
     }
-    public function players()
+
+    /**
+     * Players
+     * 
+     * @return BelongsToMany
+     */
+    public function players(): BelongsToMany
     {
         return $this->belongsToMany(Player::class, 'game_roles', 'game_id', 'player_id');
+    }
+
+    /**
+     * Flag marks game as non completed
+     * 
+     * @return bool
+     */
+    public function notCompleted(): bool
+    {
+        return $this->status !== GameStatusDictionary::COMPLETED;
     }
 
     public function getWinnersString()
     {
         $temp = [];
-        if(!empty($this->status)) {
-            $temp[] = '<span class="failed-game">' . $this->status . '</span>';
+        if($this->notCompleted()) {
+            $temp[] = '<span class="failed-game">' . GameStatusDictionary::getValueByKey($this->status) . '</span>';
         } else {
             foreach($this->winners as $winner) {
                 if($winner->faction->group->alias === 'no-role')
@@ -73,12 +148,12 @@ class Game extends Model
         $this->isCityWin = in_array(FactionGroup::where('alias', 'no-role')->first()->id, $this->winners->pluck('faction.group.id')->toArray());
         $this->isMafiaWin = in_array(FactionGroup::where('alias', 'mafia')->first()->id, $this->winners->pluck('faction.group.id')->toArray());
         $this->isNeutralWin = in_array(FactionGroup::where('alias', 'neutral')->first()->id, $this->winners->pluck('faction.group.id')->toArray());
-        $this->isFailed = !empty($this->status);;
+        $this->isFailed = $this->notCompleted();
     }
 
     public function getRoleString()
     {
-        if($this->roles->isEmpty() || !empty($this->status))
+        if($this->roles->isEmpty() || $this->notCompleted())
             return false;
 
         return $this->roleString = '<span class="faction-group-' . $this->roles->first()->faction->group->alias . '">' . $this->roles->first()->role->name . '</span>';
@@ -86,8 +161,12 @@ class Game extends Model
 
     public function getStatusString()
     {
-        if($this->roles->isEmpty() || !empty($this->status))
+        if($this->roles->isEmpty())
             return false;
+
+        if($this->notCompleted()) {
+            return $this->statusString = '<span class="failed-game">' . GameStatusDictionary::getValueByKey($this->status) . '</span>';
+        }
         
         $statusString = '';
         $role = $this->roles->first();

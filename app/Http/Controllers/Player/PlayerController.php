@@ -2,14 +2,29 @@
 
 namespace App\Http\Controllers\Player;
 
+use App\Dictionaries\Player\PlayerStatusDictionary;
 use App\Http\Controllers\Controller;
 use App\Models\Faction\Faction;
 use App\Models\Player\Player;
+use App\Services\Player\PlayerService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 class PlayerController extends Controller
 {
+    /**
+     * @var PlayerService
+     */
+    protected $service;
+
+    /**
+     * @param PlayerService $service
+     */
+    public function __construct(PlayerService $service)
+    {
+        $this->service = $service;
+    }
+
     public function index()
     {
         $players = Player::select('id', 'name', 'profile', 'last_game', \DB::raw('LOWER(LEFT(name, 1)) AS sort_letter'))
@@ -31,10 +46,45 @@ class PlayerController extends Controller
 
     public function details($id)
     {
+        $start = microtime(true);
         $player = Player::with([
             'statistics',
             'gameRoles',
             'games' => function($q) use ($id) {
+                $q->with([
+                    'master' => function($q) {
+                        $q->select('id', 'name');
+                    },
+                    'winners' => function($q) {
+                        $q->select('id', 'game_id', 'faction_id')
+                            ->with([
+                                'faction' => function($q) {
+                                    $q->select('id', 'group_id')
+                                        ->with([
+                                            'group' => function($q) {
+                                                $q->select('id', 'title', 'alias', 'title_for_games');
+                                            }
+                                        ]);
+                                }
+                            ]);
+                    },
+                    'roles' => function($q) use ($id) {
+                        $q->where('player_id', $id)
+                            ->with([
+                                'role', 'status', 'timeStatus',
+                                'faction' => function($q) {
+                                    $q->select('id', 'group_id', 'alias', 'name')
+                                        ->with([
+                                            'group' => function($q) {
+                                                $q->select('id', 'title', 'alias', 'title_for_games');
+                                            }
+                                        ]);
+                                }
+                            ]);
+                    }
+                ]);
+            },
+            'gamesMastered' => function($q) use ($id) {
                 $q->with([
                     'master' => function($q) {
                         $q->select('id', 'name');
@@ -74,9 +124,11 @@ class PlayerController extends Controller
         ->withCount(['gamesMastered'])
         ->findOrFail($id);
 
-        //$player->updatePlayerAvatar();
-        $player->parseProfile();
+        $this->service->updatePlayerAvatar($player);
+        //@todo за последней активностью лучше обращаться отдельным запросом, замедляет загрузку на 3 секунды
+        $this->service->parseProfile($player);
         $player->last_game = Carbon::parse($player->last_game)->toDateString();
+        $player->status_label = PlayerStatusDictionary::getValueByKey($player->status);
         $player->getWinrate();
         $player->factions = Faction::select('factions.id', 'group_id', 'color', 'faction_groups.alias')
             ->join('faction_groups', 'faction_groups.id', '=', 'factions.group_id')
@@ -85,20 +137,15 @@ class PlayerController extends Controller
         $player->lightningsCount = $player->getLightningsCount();
         $player->cityNegativeActionsRate = $player->getCityNegativeActionsRate();
         $player->mafiaAverageDaysSurvived = $player->getMafiaAverageDaysSurvived(2);
-        $player->games->each(function(&$value) {
-            $value->info = ['name' => $value->name, 'id' => $value->id];
-            $value->getWinnersString();
-            $value->getRoleString();
-            $value->getStatusString();
-        });
         $player->games = $player->games->sortByDesc('number')->values();
-        
+
         return view('players/details', compact('player'));
     }
 
     public function statistics()
     {
         $statistics = Player::select('id', 'name', 'last_game')
+            ->active()
             ->whereHas('statistics')
             ->with([
                 'statistics'
@@ -128,7 +175,8 @@ class PlayerController extends Controller
     {
         $validated = $this->validate($request, ['id' => 'required|integer|exists:players,id']);
         $player = Player::findOrFail($validated['id']);
-        return response()->json($player->parseProfile());
+        $this->service->parseProfile($player);
+        return response()->json($player->last_active);
     }
 
     public function playersList()
@@ -198,7 +246,8 @@ class PlayerController extends Controller
         ])
         ->withCount(['gamesMastered'])
         ->findOrFail($request->id);
-        $player->updatePlayerAvatar();
+
+        $player = $this->service->updatePlayerAvatar($player);
         $player->last_game = Carbon::parse($player->last_game)->toDateString();
         $player->getWinrate();
         $player->factions = Faction::select('factions.id', 'group_id', 'color', 'faction_groups.alias')
@@ -223,7 +272,7 @@ class PlayerController extends Controller
         $this->validate($request, ['id' => 'required|integer|exists:players,id']);
 
         $player = Player::select('id', 'profile')->findOrFail($request->id);
-        $player->parseProfile();
+        $this->service->parseProfile($player);
 
         return response()->json($player);
     }

@@ -30,7 +30,7 @@ class GameController extends Controller
             }
         ])
         ->orderBy('number', 'DESC')
-        ->paginate(25);
+        ->get();
 
         $games->each(function(&$value) {
             $value->info = ['name' => $value->name, 'id' => $value->id];

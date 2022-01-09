@@ -31,6 +31,9 @@ header {
 .faction-group-neutral {
     color: #7F2394;
 }
+.failed-game {
+    color: rgb(161, 206, 219);
+}
 .faction-no-role {
     color: #FFFFFF;
 }

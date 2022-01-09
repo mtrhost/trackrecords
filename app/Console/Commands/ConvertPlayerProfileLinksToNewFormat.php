@@ -52,5 +52,7 @@ class ConvertPlayerProfileLinksToNewFormat extends Command
             }
         }
         DB::commit();
+
+        return 0;
     }
 }

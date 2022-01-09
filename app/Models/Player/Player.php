@@ -2,106 +2,169 @@
 
 namespace App\Models\Player;
 
+use App\Dictionaries\Player\PlayerStatusDictionary;
 use App\Models\Achievement\Achievement;
 use App\Models\Faction\FactionGroup;
 use App\Models\Game\Game;
 use App\Models\Game\GameRole;
-use App\Repositories\PDRepository;
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
-use Intervention\Image\Facades\Image;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Support\Collection;
 
+/**
+ * Player
+ * 
+ * @property int $id
+ * @property string $name
+ * @property int $status
+ * @property string|null $profile
+ * @property string|null $last_game
+ * @property Carbon|null $last_profile_parse_date
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * 
+ * @property-read Collection|null $game_roles
+ * @property-read Collection|null $games_mastered
+ * @property-read Game|null $last_game_mastered
+ * @property-read PlayerStatistics $statistics
+ * @property-read Collection|null $achievements
+ * @property-read Collection|null $games
+ * @property-read Collection|null $partners
+ * @property-read string $profile_image
+ *
+ * @author jcshow
+ * @package App\Models\Player
+ */
 class Player extends Model
 {
+    /**
+     * {@inheritDoc}
+     */
     protected $fillable = [
-        'name', 'profile', 'last_game', 'last_profile_parse_date'
+        'name', 'profile', 'last_game', 'last_profile_parse_date', 'status'
     ];
 
+    /**
+     * {@inheritDoc}
+     */
     protected $casts = [
-        'name' => 'string',
-        'profile' => 'string'
+        'status' => 'integer'
     ];
 
+    /**
+     * {@inheritDoc}
+     */
     protected $dates = [
         'last_profile_parse_date'
     ];
 
     const GAMES_COUNT_FOR_STATISTICS_APPEARANCE = 20;
-    const MONTHS_TO_COUNT_AS_INACTIVE = 3;
+    const MONTHS_TO_COUNT_AS_INACTIVE = 6;
     const WINRATE_COLORS = [
         'bad' => '#b00b13',
         'average' => '#4e90ec',
         'good' => '#D7B740',
-        'inactive' => '#D3D3D3'
+        'inactive' => '#D3D3D3',
+        'lowGames' => '#5F9EA0',
+        'scammer' => 'rgb(70, 3, 9)'
     ];
 
     protected $appends = ['profileImage'];
 
-    public function gameRoles()
+    /**
+     * Game roles
+     * 
+     * @return HasMany
+     */
+    public function gameRoles(): HasMany
     {
         return $this->hasMany(GameRole::class, 'player_id');
     }
-    public function gamesMastered()
+
+    /**
+     * Games mastered
+     * 
+     * @return HasMany
+     */
+    public function gamesMastered(): HasMany
     {
         return $this->hasMany(Game::class, 'master_id', 'id');
     }
-    public function lastGameMastered()
+
+    /**
+     * Last game mastered
+     * 
+     * @return HasOne
+     */
+    public function lastGameMastered(): HasOne
     {
         return $this->hasOne(Game::class, 'master_id', 'id')->latest();
     }
-    public function statistics()
+
+    /**
+     * Statistics
+     * 
+     * @return HasOne
+     */
+    public function statistics(): HasOne
     {
         return $this->hasOne(PlayerStatistics::class, 'player_id', 'id');
     }
-    public function achievements()
+
+    /**
+     * Achievements
+     * 
+     * @return BelongsToMany
+     */
+    public function achievements(): BelongsToMany
     {
         return $this->belongsToMany(Achievement::class, 'player_achievements', 'player_id', 'achievement_id')->orderBy('achievements.sort', 'asc');
     }
-    public function games()
+
+    /**
+     * Games
+     * 
+     * @return BelongsToMany
+     */
+    public function games(): BelongsToMany
     {
         return $this->belongsToMany(Game::class, 'game_roles', 'player_id', 'game_id');
     }
-    public function partners()
+
+    /**
+     * Partners
+     * 
+     * @return BelongsToMany
+     */
+    public function partners(): BelongsToMany
     {
         return $this->belongsToMany(Player::class, 'player_partners', 'player_one_id', 'player_two_id')
             ->withPivot('games_count', 'wins_count');
     }
 
-    public function getProfileImageAttribute($value)
+    /**
+     * @param Builder $q
+     * 
+     * @return Builder
+     */
+    public function scopeActive(Builder $q): Builder
+    {
+        return $q->where('status', PlayerStatusDictionary::ACTIVE);
+    }
+
+    /**
+     * @return string
+     */
+    public function getProfileImageAttribute($value): string
     {
         if(\Storage::disk('public')->exists('players/' . $this->id . '/profileImage.png'))
             return \Storage::disk('public')->url('players/' . $this->id . '/profileImage.png');
         else
             return '/static/images/default_large.png';
-    }
-
-    public function parseProfile()
-    {
-        $profileData = app(PDRepository::class)->parseProfileData($this->profile);
-        return $this->last_active = isset($profileData['lastActive']) ? $profileData['lastActive'] : null;
-    }
-
-    public function updatePlayerAvatar()
-    {
-        if(is_null($this->last_profile_parse_date) || Carbon::now()->subDays(3)->gt($this->last_profile_parse_date)) {
-            $avatar = app(PDRepository::class)->parseProfileAvatar($this->profile);
-            if($avatar) {
-                $image = Image::make($avatar);
-                //$format = preg_replace('/(.*\.)(.*)(\?.*)/', '$2', $avatar);
-                $publicPath = \Storage::disk('public');
-                $folderPath = 'players/' . $this->id . '/';
-                if (!file_exists($publicPath->path($folderPath))) {
-                    mkdir($publicPath->path($folderPath), 0755, true);
-                }
-                $imageName = 'profileImage.png';
-                $absolutePath = $publicPath->path($folderPath . $imageName);
-                $result = $image->save($absolutePath, 100);
-                if($result) {
-                    $this->last_profile_parse_date = Carbon::now()->toDateTimeString();
-                    $this->save();
-                }
-            }
-        }
     }
 
     public function countLastGameDate($gameRole)
@@ -115,7 +178,22 @@ class Player extends Model
             $this->last_game = $lastGameMastered->date;
     }
 
-    public function isActive()
+    /**
+     * Is player scammer
+     * 
+     * @return bool
+     */
+    public function isScamer(): bool
+    {
+        return $this->status === PlayerStatusDictionary::SCAMMER;
+    }
+
+    /**
+     * Is player active
+     * 
+     * @return bool
+     */
+    public function isActive(): bool
     {
         $lastGame = Game::select('id', 'date')->orderByDesc('number')->first();
         if(is_null($this->last_game) || Carbon::parse($lastGame->date)->subMonths(self::MONTHS_TO_COUNT_AS_INACTIVE)->gt($this->last_game))
@@ -168,8 +246,12 @@ class Player extends Model
 
     public function getWinrateColor()
     {
-        if(!$this->is_active) {
+        if ($this->isScamer()) {
+            $this->winrate_color = self::WINRATE_COLORS['scammer'];
+        } else if(!$this->is_active) {
             $this->winrate_color = self::WINRATE_COLORS['inactive'];
+        } else if ($this->statistics->games_count < 20) {
+            $this->winrate_color = self::WINRATE_COLORS['lowGames'];
         } else {
             if($this->winrate < 35) {
                 $this->winrate_color = self::WINRATE_COLORS['bad'];
@@ -264,215 +346,5 @@ class Player extends Model
             return 0;
 
         return $this->statistics->getNeutralAverageDaysSurvived($accuracy);
-    }
-
-    public function assignRegularAchievements($achievements)
-    {
-        if($this->games_mastered_count > 9) {
-            if(!$this->achievements()->syncWithoutDetaching($achievements->filter(function($value){ return $value->alias === 'master'; })->first()->id))
-                return false;
-        }
-
-        if(empty($this->statistics))
-            return true;
-
-        if($this->statistics->wins_neutral > 0) {
-            if(!$this->achievements()->syncWithoutDetaching($achievements->filter(function($value){ return $value->alias === 'ghost'; })->first()->id))
-                return false;
-        }
-        if($this->statistics->wins_mafia > 4) {
-            if(!$this->achievements()->syncWithoutDetaching($achievements->filter(function($value){ return $value->alias === 'leery'; })->first()->id))
-                return false;
-        }
-        if($this->statistics->wins_active > 9) {
-            if(!$this->achievements()->syncWithoutDetaching($achievements->filter(function($value){ return $value->alias === 'sheriff'; })->first()->id))
-                return false;
-        }
-        if(($this->statistics->games_count + $this->games_mastered_count) > 99) {
-            if(!$this->achievements()->syncWithoutDetaching($achievements->filter(function($value){ return $value->alias === 'oldschool'; })->first()->id))
-                return false;
-        }
-        if($this->statistics->games_count_mafia > 10 && $this->getFactionWinrate('mafia') > 60) {
-            if(!$this->achievements()->syncWithoutDetaching($achievements->filter(function($value){ return $value->alias === 'bewatcher'; })->first()->id))
-                return false;
-        }
-        if($this->statistics->games_count_active > 15 && $this->getFactionWinrate('active') > 65) {
-            if(!$this->achievements()->syncWithoutDetaching($achievements->filter(function($value){ return $value->alias === 'cityLegend'; })->first()->id))
-                return false;
-        }
-        return true;
-    }
-
-    public function assignStaticAchievements($achievements)
-    {
-        if($this->id === 60) {
-            if(!$this->achievements()->syncWithoutDetaching($achievements->filter(function($value){ 
-                return in_array($value->alias, ['civilian2011', 'neutral2011', 'active2012', 'active2013']); })->pluck('id')->toArray())
-            )
-                return false;
-        }
-        if($this->id === 6) {
-            if(!$this->achievements()->syncWithoutDetaching($achievements->filter(function($value){ 
-                return in_array($value->alias, ['active2011']); })->pluck('id')->toArray())
-            )
-                return false;
-        }
-        if($this->id === 46) {
-            if(!$this->achievements()->syncWithoutDetaching($achievements->filter(function($value){ 
-                return in_array($value->alias, ['mafia2011']); })->pluck('id')->toArray())
-            )
-                return false;
-        }
-        if($this->id === 8) {
-            if(!$this->achievements()->syncWithoutDetaching($achievements->filter(function($value){ 
-                return in_array($value->alias, ['neutral2011']); })->pluck('id')->toArray())
-            )
-                return false;
-        }
-        if($this->id === 11) {
-            if(!$this->achievements()->syncWithoutDetaching($achievements->filter(function($value){ 
-                return in_array($value->alias, ['civilian2012', 'civilian2016']); })->pluck('id')->toArray())
-            )
-                return false;
-        }
-        if($this->id === 13) {
-            if(!$this->achievements()->syncWithoutDetaching($achievements->filter(function($value){ 
-                return in_array($value->alias, ['mafia2012', 'civilian2013', 'mafia2013', 'civilian2014', 'active2015']); })->pluck('id')->toArray())
-            )
-                return false;
-        }
-        if($this->id === 10) {
-            if(!$this->achievements()->syncWithoutDetaching($achievements->filter(function($value){ 
-                return in_array($value->alias, ['neutral2012', 'mafia2014']); })->pluck('id')->toArray())
-            )
-                return false;
-        }
-        if($this->id === 100) {
-            if(!$this->achievements()->syncWithoutDetaching($achievements->filter(function($value){ 
-                return in_array($value->alias, ['civilian2013']); })->pluck('id')->toArray())
-            )
-                return false;
-        }
-        if($this->id === 102) {
-            if(!$this->achievements()->syncWithoutDetaching($achievements->filter(function($value){ 
-                return in_array($value->alias, ['neutral2013', 'neutral2014', 'active2017']); })->pluck('id')->toArray())
-            )
-                return false;
-        }
-        if($this->id === 21) {
-            if(!$this->achievements()->syncWithoutDetaching($achievements->filter(function($value){ 
-                return in_array($value->alias, ['civilian2014', 'civilian2015']); })->pluck('id')->toArray())
-            )
-                return false;
-        }
-        if($this->id === 95) {
-            if(!$this->achievements()->syncWithoutDetaching($achievements->filter(function($value){ 
-                return in_array($value->alias, ['active2014']); })->pluck('id')->toArray())
-            )
-                return false;
-        }
-        if($this->id === 207) {
-            if(!$this->achievements()->syncWithoutDetaching($achievements->filter(function($value){ 
-                return in_array($value->alias, ['mafia2015', 'mafia2016', 'mafia2020']); })->pluck('id')->toArray())
-            )
-                return false;
-        }
-        if($this->id === 218) {
-            if(!$this->achievements()->syncWithoutDetaching($achievements->filter(function($value){ 
-                return in_array($value->alias, ['neutral2015', 'mafia2017']); })->pluck('id')->toArray())
-            )
-                return false;
-        }
-        if($this->id === 111) {
-            if(!$this->achievements()->syncWithoutDetaching($achievements->filter(function($value){ 
-                return in_array($value->alias, ['active2016']); })->pluck('id')->toArray())
-            )
-                return false;
-        }
-        if($this->id === 85) {
-            if(!$this->achievements()->syncWithoutDetaching($achievements->filter(function($value){ 
-                return in_array($value->alias, ['active2016']); })->pluck('id')->toArray())
-            )
-                return false;
-        }
-        if($this->id === 228) {
-            if(!$this->achievements()->syncWithoutDetaching($achievements->filter(function($value){ 
-                return in_array($value->alias, ['neutral2016']); })->pluck('id')->toArray())
-            )
-                return false;
-        }
-        if($this->id === 183) {
-            if(!$this->achievements()->syncWithoutDetaching($achievements->filter(function($value){ 
-                return in_array($value->alias, ['civilian2017', 'active2018']); })->pluck('id')->toArray())
-            )
-                return false;
-        }
-        if($this->id === 269) {
-            if(!$this->achievements()->syncWithoutDetaching($achievements->filter(function($value){ 
-                return in_array($value->alias, ['neutral2017']); })->pluck('id')->toArray())
-            )
-                return false;
-        }
-        if($this->id === 212) {
-            if(!$this->achievements()->syncWithoutDetaching($achievements->filter(function($value){ 
-                return in_array($value->alias, ['mindgames', 'neutral2018']); })->pluck('id')->toArray())
-            )
-                return false;
-        }
-        if($this->id === 254) {
-            if(!$this->achievements()->syncWithoutDetaching($achievements->filter(function($value){ 
-                return in_array($value->alias, ['civilian2018']); })->pluck('id')->toArray())
-            )
-                return false;
-        }
-        if($this->id === 263) {
-            if(!$this->achievements()->syncWithoutDetaching($achievements->filter(function($value){ 
-                return in_array($value->alias, ['active2018', 'neutral2020']); })->pluck('id')->toArray())
-            )
-                return false;
-        }
-        if($this->id === 278) {
-            if(!$this->achievements()->syncWithoutDetaching($achievements->filter(function($value){ 
-                return in_array($value->alias, ['mafia2018']); })->pluck('id')->toArray())
-            )
-                return false;
-        }
-        if($this->id === 252) {
-            if(!$this->achievements()->syncWithoutDetaching($achievements->filter(function($value){ 
-                return in_array($value->alias, ['neutral2018', 'civilian2019']); })->pluck('id')->toArray())
-            )
-                return false;
-        }
-        if($this->id === 16) {
-            if(!$this->achievements()->syncWithoutDetaching($achievements->filter(function($value){ 
-                return in_array($value->alias, ['civilian2019', 'active2019', 'civilian2020']); })->pluck('id')->toArray())
-            )
-                return false;
-        }
-        if($this->id === 259) {
-            if(!$this->achievements()->syncWithoutDetaching($achievements->filter(function($value){ 
-                return in_array($value->alias, ['mafia2019']); })->pluck('id')->toArray())
-            )
-                return false;
-        }
-        if($this->id === 106) {
-            if(!$this->achievements()->syncWithoutDetaching($achievements->filter(function($value){ 
-                return in_array($value->alias, ['neutral2019']); })->pluck('id')->toArray())
-            )
-                return false;
-        }
-        if($this->id === 261) {
-            if(!$this->achievements()->syncWithoutDetaching($achievements->filter(function($value){ 
-                return in_array($value->alias, ['civilian2020']); })->pluck('id')->toArray())
-            )
-                return false;
-        }
-        if($this->id === 214) {
-            if(!$this->achievements()->syncWithoutDetaching($achievements->filter(function($value){ 
-                return in_array($value->alias, ['active2020']); })->pluck('id')->toArray())
-            )
-                return false;
-        }
-        return true;
     }
 }

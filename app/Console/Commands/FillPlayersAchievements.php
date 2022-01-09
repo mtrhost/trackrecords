@@ -2,9 +2,11 @@
 
 namespace App\Console\Commands;
 
+use App\Dictionaries\Player\PlayerStatusDictionary;
+use App\Models\Player\Player;
+use App\Models\Player\PlayerAchievement;
 use Illuminate\Console\Command;
-use App\Player;
-use App\PlayerAchievement;
+use App\Services\Player\PlayerAchievementSynchronizationService;
 use Illuminate\Support\Facades\DB;
 
 class FillPlayersAchievements extends Command
@@ -24,13 +26,21 @@ class FillPlayersAchievements extends Command
     protected $description = 'Assign achievements to players via player achievements table';
 
     /**
+     * @var PlayerAchievementSynchronizationService
+     */
+    protected $syncService;
+
+    /**
      * Create a new command instance.
+     * 
+     * @param PlayerAchievementSynchronizationService $syncService
      *
      * @return void
      */
-    public function __construct()
+    public function __construct(PlayerAchievementSynchronizationService $syncService)
     {
         parent::__construct();
+        $this->syncService = $syncService;
     }
 
     /**
@@ -41,24 +51,23 @@ class FillPlayersAchievements extends Command
     public function handle()
     {
         exec('chcp 65001');
-        $players = Player::select('id', 'name', 'last_game')
+        $players = Player::select('id', 'name', 'last_game', 'status')
+            ->where('status', PlayerStatusDictionary::ACTIVE)
             ->with([
                 'statistics'
             ])
             ->withCount(['gamesMastered'])
             ->get();
 
-        $transaction = DB::transaction(function () use($players) {
-            if(!PlayerAchievement::query()->truncate() || !PlayerAchievement::synchronizeAchievements($players)) {
-                DB::rollback();
-                return false;
-            }
-            return true;
-        });
+        DB::beginTransaction();
+        if(!PlayerAchievement::query()->truncate() || !$this->syncService->run($players)) {
+            DB::rollback();
+            $this->error("Пересчет достижений отменен из-за ошибки");
+            return 0;
+        }
+        DB::commit();
 
-        if($transaction)
-            echo "Пересчет достижений успешно завершен \r\n";
-        else
-            echo "Пересчет достижений отменен из-за ошибки \r\n";
+        $this->info("Пересчет достижений успешно завершен");
+        return 0;
     }
 }

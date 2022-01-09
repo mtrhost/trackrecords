@@ -18,7 +18,8 @@
                 totalWinsCount: 0,
                 totalLosesCount: 0,
                 civilianNegativeActionsCount: 0,
-                civilianGamesCount: 0
+                civilianGamesCount: 0,
+                table: ''
             },
             methods: {
                 isActive: function (menuItem) {
@@ -75,13 +76,40 @@
                 bar.animate(this.player.winrate / 100, 1.0);  // Number from 0.0 to 1.0
 
                 Vue.nextTick(function () {
-                    $("#GamesTable").DataTable({
+                    this.table = $("#GamesTable").DataTable({
                         "language": {
                             "url": "//cdn.datatables.net/plug-ins/1.10.20/i18n/Russian.json"
                         },
                         "bLengthChange": false,
                         "pageLength": 25,
-                        "order": [[ 0, 'desc' ]]
+                        columnDefs: [
+                            { targets: [0, 1, 2, 3, 4], visible: true},
+                            { targets: '_all', visible: false },
+                            
+                            { width: "40%", targets: [5] }
+                        ],
+                        responsive: true,
+                        "order": [[ 0, 'desc' ]],
+                        initComplete: function () {
+                            this.api().columns([5]).every(function () {
+                                var column = this;
+                                var select = $('<select class="form-control" style="width:150px; display:inline-block;"><option value=""></option></select>')
+                                    .appendTo( $('#GamesTable_filter') )
+                                    .on( 'change', function () {
+                                        var val = $.fn.dataTable.util.escapeRegex(
+                                            $(this).val()
+                                        );
+                
+                                        column
+                                            .search( val ? '^'+val+'$' : '', true, false )
+                                            .draw();
+                                    } );
+                
+                                column.data().unique().sort().each( function ( d, j ) {
+                                    select.append( '<option value="'+d+'">'+d+'</option>' )
+                                } );
+                            } );
+                        }
                     });
                 })
             },
@@ -95,9 +123,48 @@
                                 },
                                 "bLengthChange": false,
                                 "pageLength": 25,
+                                responsive: true,
+                                columnDefs: [
+                                    { targets: [0, 1, 2, 3, 4], visible: true},
+                                    { targets: '_all', visible: false },
+                                    
+                                    { width: "40%", targets: [5] }
+                                ],
+                                "order": [[ 0, 'desc' ]],
+                                initComplete: function () {
+                                    this.api().columns([5]).every(function () {
+                                        var column = this;
+                                        var select = $('<select class="form-control" style="width:150px; display:inline-block;"><option value=""></option></select>')
+                                            .appendTo( $('#GamesTable_filter') )
+                                            .on( 'change', function () {
+                                                var val = $.fn.dataTable.util.escapeRegex(
+                                                    $(this).val()
+                                                );
+                        
+                                                column
+                                                    .search( val ? '^'+val+'$' : '', true, false )
+                                                    .draw();
+                                            } );
+                        
+                                        column.data().unique().sort().each( function ( d, j ) {
+                                            select.append( '<option value="'+d+'">'+d+'</option>' )
+                                        } );
+                                    } );
+                                }
+                            });
+                        });
+                    } else if (newValue == 'mastered') {
+                        Vue.nextTick(function () {
+                            $("#MasteredTable").DataTable({
+                                "language": {
+                                    "url": "//cdn.datatables.net/plug-ins/1.10.20/i18n/Russian.json"
+                                },
+                                "bLengthChange": false,
+                                "pageLength": 15,
+                                responsive: true,
                                 "order": [[ 0, 'desc' ]]
                             });
-                        })
+                        });
                     }
                     if (newValue == 'partners') {
                         Vue.nextTick(function () {
@@ -125,7 +192,11 @@
                 <img class="card-img-top mx-auto d-block" 
                     src="{{ $player->profile_image }}" alt="{{ $player->name }}">
                 <div class="card-body">
-                    <div id="winrate-bar" class="progress-bar-container line-styled"></div>
+                    @if ($player->isScamer())
+                        <img src="/static/images/shit.gif"><img src="/static/images/shit.gif"><img src="/static/images/shit.gif">
+                    @else
+                        <div id="winrate-bar" class="progress-bar-container line-styled"></div>
+                    @endif
                 </div>
                 <div class="card-footer text-muted">
                     {{ $player->last_active }}
@@ -197,6 +268,9 @@
                             <a class="nav-link" :class="{ active:isActive('games') }" data-toggle="tab" @click="setActive('games')">Игры</a>
                         </li>
                         <li class="nav-item">
+                            <a class="nav-link" :class="{ active:isActive('mastered') }" data-toggle="tab" @click="setActive('mastered')">Проведенные игры</a>
+                        </li>
+                        <li class="nav-item">
                             <a class="nav-link" :class="{ active:isActive('partners') }" data-toggle="tab" @click="setActive('partners')">Напарники</a>
                         </li>
                         <li class="nav-item">
@@ -213,9 +287,9 @@
             {{-- Секция игр --}}
             <template v-if="isActive('games')">
                 <div class="row">
+                    
                     <div class="col-lg-12">
                         <div class="card custom-card table-responsive">
-
                             <div class="card-block p-t-0">
                                 <div id="DataTables_Table_0_wrapper" class="dataTables_wrapper dt-bootstrap4 no-footer">
                                     <div class="row">
@@ -246,8 +320,9 @@
                                                                     {{ $game->master->name }}
                                                                 </a>
                                                             </td>
-                                                            <td>{!! $game->roleString !!}</td>
-                                                            <td>{!! $game->statusString !!}</td>
+                                                            <td>{!! $game->getRoleString() !!}</td>
+                                                            <td>{!! $game->getStatusString() !!}</td>
+                                                            <td>{{ $game->roles->first()->faction->group->title }}</td>
                                                         </tr>
                                                     @endforeach
                                                 </tbody>
@@ -257,6 +332,59 @@
                                     <div class="row">
                                         <div class="col-sm-12 col-md-7">
                                             <div class="dataTables_paginate paging_numbers" id="DataTables_Table_0_paginate">
+                                                <ul class="pagination"></ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </template>
+
+            {{-- Секция проведенных игр --}}
+            <template v-if="isActive('mastered')">
+                <div class="row">
+                    
+                    <div class="col-lg-12">
+                        <div class="card custom-card table-responsive">
+                            <div class="card-block p-t-0">
+                                <div id="DataTables_Table_0_wrapper" class="dataTables_wrapper dt-bootstrap4 no-footer">
+                                    <div class="row">
+                                        <div class="col-sm-12 col-md-6"></div>
+                                        <div class="col-sm-12 col-md-6"></div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-sm-12">
+                                            <table class="players-table latest-matches table dataTable no-footer" id="MasteredTable" role="grid">
+                                                <thead>
+                                                    <th>№</th>
+                                                    <th>Название</th>
+                                                    <th>Победители</th>
+                                                </thead>
+                                                <tbody>
+                                                    @foreach($player->gamesMastered as $game)
+                                                        <tr>
+                                                            <td>{{ $game->number }}</td>
+                                                            <td>
+                                                                <a href="{{ route('game.details', $game->id) }}">
+                                                                    {{ $game->name }}
+                                                                </a>
+                                                            </td>
+                                                            <td>
+                                                                {!! $game->getWinnersString() !!}
+                                                            </td>
+                                                        </tr>
+                                                    @endforeach
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-sm-12 col-md-7">
+                                            <div class="dataTables_paginate paging_numbers" id="DataTables_Table_1_paginate">
                                                 <ul class="pagination"></ul>
                                             </div>
                                         </div>
@@ -311,7 +439,7 @@
                                     </div>
                                     <div class="row">
                                         <div class="col-sm-12 col-md-7">
-                                            <div class="dataTables_paginate paging_numbers" id="DataTables_Table_0_paginate">
+                                            <div class="dataTables_paginate paging_numbers" id="DataTables_Table_2_paginate">
                                                 <ul class="pagination"></ul>
                                             </div>
                                         </div>

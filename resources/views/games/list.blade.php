@@ -1,7 +1,39 @@
 @extends('templates.app')
 @section('title','Игры')
 @section('layout')
-<section class="container games-page">
+@section('footer-scripts')
+    <script src="{{ url('js/vue.js') }}"></script>
+    <script src="{{ url('js/vue-resource.js') }}"></script>
+    <script src="{{ url('js/datatables.min.js') }}"></script>
+    <script>
+        new Vue({
+            el: '#games',
+            data: {
+                settings: <?php echo $games->toJson() ?>
+            },
+            methods: {
+                
+            },
+            mounted: function() {
+                $(".players-table").DataTable({
+                    "language": {
+                        "url": "//cdn.datatables.net/plug-ins/1.10.20/i18n/Russian.json"
+                    },
+                    "bLengthChange": false,
+                    "pageLength": 50,
+                    "order": [[ 0, "desc" ]]
+                    //"ordering": false
+                });
+            },
+            created: function(){
+                /*for (var player in this.players) {
+                    setTimeout(this.getLastActivity(this.players[player].id), 5000);
+                }*/
+            }
+        });
+    </script>
+@endsection
+<section class="container games-page" id="games">
     <div class="card custom-card">
         <div class="card-header">
             <h1 class="card-title">
@@ -69,13 +101,6 @@
                         </div>
                     </div>
                 </div>
-            </div>
-            <div class="row">
-                <div class="col-sm-12">
-                <div class="filter-pagination m-b-30">
-                    {{ $games->links() }}
-                </div>
-            </div>
             </div>
         </div>
     </div>

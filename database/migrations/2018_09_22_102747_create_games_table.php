@@ -1,5 +1,6 @@
 <?php
 
+use App\Dictionaries\Game\GameStatusDictionary;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
@@ -22,7 +23,7 @@ class CreateGamesTable extends Migration
             $table->unsignedInteger('length');
             $table->date('date')->nullable();
             $table->string('link')->nullable();
-            $table->string('status')->nullable();
+            $table->unsignedInteger('status')->default(GameStatusDictionary::COMPLETED);
             $table->unsignedInteger('players_count');
             $table->unsignedInteger('active_count');
             $table->unsignedInteger('mafia_count');

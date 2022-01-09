@@ -1,12 +1,18 @@
 <?php
 
-namespace App\Services;
+namespace App\Services\Player;
 
 use App\Models\Game\GameRole;
 use App\Models\Player\Player;
 use App\Models\Player\PlayerPartner;
 use stdClass;
 
+/**
+ * Service for calculation player partners
+ *
+ * @author jcshow
+ * @package App\Services\Player
+ */
 class PlayerPartnerService
 {
     /**
