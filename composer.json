@@ -13,7 +13,8 @@
         "jcshoww/php-dictionary": "^1.0.0",
         "laravel/framework": "7.*",
         "laravel/helpers": "1.*",
-        "laravel/tinker": "^2.0"
+        "laravel/tinker": "^2.0",
+        "laravel/ui": "^2.0"
     },
     "require-dev": {
         "filp/whoops": "~2.0",

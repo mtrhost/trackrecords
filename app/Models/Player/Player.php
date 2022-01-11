@@ -22,6 +22,7 @@ use Illuminate\Support\Collection;
  * @property string $name
  * @property int $status
  * @property string|null $profile
+ * @property string|null $also_known
  * @property string|null $last_game
  * @property Carbon|null $last_profile_parse_date
  * @property Carbon|null $created_at
@@ -45,7 +46,7 @@ class Player extends Model
      * {@inheritDoc}
      */
     protected $fillable = [
-        'name', 'profile', 'last_game', 'last_profile_parse_date', 'status'
+        'name', 'profile', 'last_game', 'last_profile_parse_date', 'status', 'also_known'
     ];
 
     /**

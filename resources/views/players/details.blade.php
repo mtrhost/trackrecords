@@ -189,6 +189,9 @@
         <div class="col-lg-4 col-sm-12">
             <div class="card player-card">
                 <h3 class="card-header">{{ $player->name }}</h3>
+                @if (!empty($player->also_known))
+                    <p class="card-header">{{ $player->also_known }}</p>
+                @endif
                 <img class="card-img-top mx-auto d-block" 
                     src="{{ $player->profile_image }}" alt="{{ $player->name }}">
                 <div class="card-body">
