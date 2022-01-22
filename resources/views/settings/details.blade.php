@@ -69,7 +69,7 @@
                                                 {{ $game->master->name }}
                                             </a>
                                         </td>
-                                        <td>{!! $game->winnersString !!}</td>
+                                        <td>{!! $game->getWinnersString() !!}</td>
                                     </tr>
                                 @endforeach
                             </tbody>

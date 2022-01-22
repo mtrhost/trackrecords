@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Dictionaries\Game\GameStatusDictionary;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\CreatePlayersRequest;
 use App\Http\Requests\CreateSettingRequest;
@@ -74,8 +75,9 @@ class AdminController extends Controller
         $factions = Faction::select('id', 'name', 'color', 'alias', 'group_id')->get()->toArray();
         $statuses = GameStatus::select('id', 'name')->get()->toArray();
         $timeStatuses = GameTimeStatus::select('id', 'name')->get()->toArray();
+        $gameStatuses = GameStatusDictionary::getObjectFormatted();
 
-        return view('admin/game', compact('settings', 'players', 'factions', 'statuses', 'timeStatuses'));
+        return view('admin/game', compact('settings', 'players', 'factions', 'statuses', 'timeStatuses', 'gameStatuses'));
     }
 
     public function saveRoles(Request $request)

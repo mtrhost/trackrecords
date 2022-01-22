@@ -44,7 +44,9 @@
                                     <input class="form-control w-100" placeholder="Ссылка" name="game[link]" value="" v-model="game.link">
                                 </div>
                                 <div class="w-50">
-                                    <input class="form-control w-100" placeholder="Статус (если зафейлена)" name="game[status]" value="" v-model="game.status">
+                                    <select class="form-control w-100" placeholder="Статус" name="game[status]" v-model="game.status">
+                                        <option v-for="status in gameStatuses" :value="status.id">@{{ status.value }}</option>
+                                    </select>
                                 </div>
                             </div>
                             <div class="form-group form-inline">
@@ -111,6 +113,7 @@
                 factions: {!! json_encode($factions) !!},
                 statuses: {!! json_encode($statuses) !!},
                 timeStatuses: {!! json_encode($timeStatuses) !!},
+                gameStatuses: {!! json_encode($gameStatuses) !!},
                 newGameRoles: 0,
                 game: {
                     _token: '{{ csrf_token() }}',

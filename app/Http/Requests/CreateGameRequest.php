@@ -31,7 +31,7 @@ class CreateGameRequest extends FormRequest
             'master_id' => 'required|integer|exists:players,id',
             'date' => 'required|string|max:255',
             'link' => 'required|string|max:255',
-            'status' => 'sometimes|string|nullable',
+            'status' => 'required|integer',
             'players_count' => 'required|integer',
             'active_count' => 'required|integer',
             'mafia_count' => 'required|integer',
